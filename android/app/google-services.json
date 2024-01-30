@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "182065126076",
+    "project_id": "tfgmanuelcb",
+    "storage_bucket": "tfgmanuelcb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182065126076:android:14c28b0f5f74df8dec8eb9",
+        "android_client_info": {
+          "package_name": "com.example.tfgmanuelcb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBml88jY6dkYQAEGNAF6qf-B96hxhnn0jQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
