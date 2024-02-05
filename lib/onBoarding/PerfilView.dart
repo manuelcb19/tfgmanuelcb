@@ -6,9 +6,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tfgmanuelcb/CustomViews/CustomButton.dart';
+import 'package:tfgmanuelcb/CustomViews/CustomTextField.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
-
-import '../CustomViews/CustomTextField.dart';
 
 class PerfilView extends StatefulWidget {
   @override
@@ -16,7 +15,7 @@ class PerfilView extends StatefulWidget {
 }
 
 class _PerfilViewState extends State<PerfilView> {
-  TextEditingController _searchController = TextEditingController();
+  String? selectedGameId;
   TextEditingController tecNombre = TextEditingController();
   TextEditingController tecApellidos = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
@@ -32,14 +31,13 @@ class _PerfilViewState extends State<PerfilView> {
       mostrarPredefinida = false; // Después de seleccionar una nueva imagen, ocultar la predefinida
     });
 
-    //String imageUrl = await setearUrlImagen();
-    //print(imageUrl);
     conexion.fbadmin.anadirUsuario(tecNombre.text, tecApellidos.text, "gggg");
     Navigator.of(_context).popAndPushNamed("/homeview");
   }
 
-  static Future<String?> _showSearchDialog(
-      BuildContext context, TextEditingController searchController,
+  Future<String?> _showSearchDialog(
+      BuildContext context,
+      TextEditingController searchController,
       ) async {
     TextEditingController _searchController = TextEditingController();
 
@@ -68,7 +66,7 @@ class _PerfilViewState extends State<PerfilView> {
                 String nombreJuego = _searchController.text.trim();
 
                 // Lógica para obtener la lista de IDs usando tu función
-                List<String> listaDeIds = await obtenerListaDeIds(nombreJuego);
+                Map<int, String> diccionario = await obtenerDiccionarioDeIds(nombreJuego);
 
                 // Muestra una lista de IDs y permite al usuario seleccionar uno
                 String? selectedIdFromList = await showDialog<String>(
@@ -80,11 +78,15 @@ class _PerfilViewState extends State<PerfilView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          for (String id in listaDeIds)
+                          for (int id in diccionario.keys)
                             ListTile(
-                              title: Text(id),
-                              onTap: () {
-                                Navigator.of(context).pop(id);
+                              title: Text(diccionario[id]!),
+                              onTap: () async {
+                                await agregarJuegoDeMesaAlUsuario(id.toString(),diccionario[id]!);
+                                // Imprime el ID correspondiente al nombre seleccionado
+                                print('ID seleccionado: $id');
+
+                                Navigator.of(context).pop(id.toString());
                               },
                             ),
                         ],
@@ -103,6 +105,7 @@ class _PerfilViewState extends State<PerfilView> {
 
                 // Resto del código
                 if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
+                  print("ID seleccionada: $selectedIdFromList");
                   Navigator.of(context).pop(selectedIdFromList);
                 } else {
                   // Mostrar mensaje o realizar otras acciones si es necesario
@@ -121,62 +124,50 @@ class _PerfilViewState extends State<PerfilView> {
     );
   }
 
-  static Future<List<String>> obtenerListaDeIds(String nombreJuego) async {
+  static Future<Map<int, String>> obtenerDiccionarioDeIds(String nombreJuego) async {
     try {
       var bgg = Bgg();
       var searchBoardGamesResult = await bgg.searchBoardGames(nombreJuego);
 
-      if (searchBoardGamesResult.isNotEmpty) {
-        return searchBoardGamesResult.map((boardGame) => boardGame.name.toString()).toList();
+      if (searchBoardGamesResult != null && searchBoardGamesResult.isNotEmpty) {
+        // Utilizamos un Map para almacenar el ID como clave y el nombre como valor
+        Map<int, String> diccionarioIds = {};
+
+        for (var boardGame in searchBoardGamesResult) {
+          if (boardGame.id != null && boardGame.name != null) {
+            diccionarioIds[boardGame.id!] = boardGame.name!;
+            print(diccionarioIds[boardGame.id!] = boardGame.name!);
+          }
+        }
+
+        return diccionarioIds;
       } else {
-        return [];
+        return {};
       }
     } catch (e) {
       // Manejar errores aquí
-      print("Error al obtener la lista de IDs: $e");
-      return [];
+      print("Error al obtener el diccionario de IDs: $e");
+      return {};
     }
   }
 
-  /*Future<void> _getImage() async {
-    final picker = ImagePicker();
-    XFile? pickedImage = await picker.pickImage(source: ImageSource.camera);
-
-    if (pickedImage != null) {
-      setState(() {
-        _imagePreview = File(pickedImage.path);
-        mostrarPredefinida = false; // Después de seleccionar una nueva imagen, ocultar la predefinida
-      });
-    }
-  }*/
-/*
-  Future<String> setearUrlImagen() async {
-    final storageRef = FirebaseStorage.instance.ref();
-
-    String rutaEnNube =
-        "posts/" + FirebaseAuth.instance.currentUser!.uid + "/imgs/" +
-            DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
-    print("RUTA DONDE VA A GUARDARSE LA IMAGEN: " + rutaEnNube);
-
-    final rutaAFicheroEnNube = storageRef.child(rutaEnNube);
-
-    final metadata = SettableMetadata(contentType: "image/jpeg");
+  Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
-      await rutaAFicheroEnNube.putFile(_imagePreview, metadata);
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      //print("el nombre metido es: " + idJuego.toString() + nombre.toString() + userId.toString());
+      // Crear un nuevo documento para el juego de mesa
+      await db.collection("ColeccionJuegos")
+          .doc(userId)
+          .collection("juegos")
+          .doc(idJuego)
+          .set({"nombre": nombre}); // Puedes agregar más detalles si los necesitas
 
-      print("SE HA SUBIDO LA IMAGEN");
-
-      // Obtén la URL de la imagen después de subirla
-      String url = await rutaAFicheroEnNube.getDownloadURL();
-      print("URL de la imagen: $url");
-      return url;
-    } on FirebaseException catch (e) {
-      print("ERROR AL SUBIR IMAGEN: " + e.toString());
-      print("STACK TRACE: " + e.stackTrace.toString());
-      return "";
+    } catch (e) {
+      print("Error al agregar juego de mesa al usuario: $e");
     }
   }
-*/
+
+
   @override
   Widget build(BuildContext context) {
     this._context = context;
@@ -244,7 +235,7 @@ class _PerfilViewState extends State<PerfilView> {
                   ElevatedButton(
                     onPressed: () {
                       // Aquí debes abrir el diálogo para introducir el nombre del juego
-                      _showSearchDialog(context, _searchController);
+                      _showSearchDialog(context, tecNombre);
                     },
                     child: Text('Añadir Juegos de Mesa'),
                   ),
