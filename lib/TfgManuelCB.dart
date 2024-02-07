@@ -1,6 +1,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tfgmanuelcb/Home/HomeView.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
 
@@ -18,6 +19,7 @@ class TfgManuelCB extends StatelessWidget{
         '/loginview':(context) => LoginView(),
         '/registerview':(context) => RegisterView(),
         '/perfilview':(context) => PerfilView(),
+        '/homeview':(context) => HomeView(),
       },
       initialRoute: '/loginview',
     );
