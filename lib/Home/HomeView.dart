@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
+import 'package:tfgmanuelcb/Home/DetallesJuegoScreen.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -51,11 +52,25 @@ class _HomeViewState extends State<HomeView> {
         itemBuilder: (context, index) {
           FbBoardGame juego = juegos[index];
           return ListTile(
+            contentPadding: EdgeInsets.all(16),
+            leading: juego.sUrlImg.isNotEmpty
+                ? Image.network(
+              juego.sUrlImg,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
+            )
+                : Container(),
             title: Text(juego.nombre),
             subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
-
-            // Aquí puedes mostrar la imagen si es necesario
-            // Para mostrar una imagen desde una URL, puedes usar Image.network(juego.sUrlImg)
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetallesJuegoScreen(juego: juego),
+                ),
+              );
+            },
           );
         },
       ),
