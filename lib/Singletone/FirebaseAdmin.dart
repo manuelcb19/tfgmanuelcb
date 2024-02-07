@@ -1,4 +1,5 @@
 
+import 'package:bgg_api/bgg_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbUsuario.dart';
@@ -17,6 +18,27 @@ class FirebaseAdmin {
     }
     else {
       return false;
+    }
+  }
+
+  Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+
+      var bgg = Bgg();
+      var boardGame = await bgg.getBoardGame(int.parse(idJuego));
+      await db.collection("ColeccionJuegos")
+          .doc(userId)
+          .collection("juegos")
+          .doc(idJuego)
+          .set({
+          "nombre": nombre,
+          "yearPublished": boardGame?.yearPublished,
+          "image": boardGame?.image.toString(),
+        }); // Puedes agregar más detalles si los necesitas
+
+    } catch (e) {
+      print("Error al agregar juego de mesa al usuario: $e");
     }
   }
 

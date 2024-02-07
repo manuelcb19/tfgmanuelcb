@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tfgmanuelcb/Singletone/HttpAdmin.dart';
 
 import 'FirebaseAdmin.dart';
 
@@ -10,7 +11,7 @@ class DataHolder {
   String sNombre="TfgManuelCB";
   FirebaseFirestore db = FirebaseFirestore.instance;
   FirebaseAdmin fbadmin=FirebaseAdmin();
-
+  HttpAdmin httpAdmin=HttpAdmin();
   DataHolder._internal() {
   }
   void initDataHolder(){

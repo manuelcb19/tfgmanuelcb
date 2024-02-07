@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:bgg_api/bgg_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tfgmanuelcb/CustomViews/CustomButton.dart';
@@ -66,7 +65,7 @@ class _PerfilViewState extends State<PerfilView> {
                 String nombreJuego = _searchController.text.trim();
 
                 // Lógica para obtener la lista de IDs usando tu función
-                Map<int, String> diccionario = await obtenerDiccionarioDeIds(nombreJuego);
+                Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
 
                 // Muestra una lista de IDs y permite al usuario seleccionar uno
                 String? selectedIdFromList = await showDialog<String>(
@@ -82,7 +81,7 @@ class _PerfilViewState extends State<PerfilView> {
                             ListTile(
                               title: Text(diccionario[id]!),
                               onTap: () async {
-                                await agregarJuegoDeMesaAlUsuario(id.toString(),diccionario[id]!);
+                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(),diccionario[id]!);
                                 // Imprime el ID correspondiente al nombre seleccionado
                                 print('ID seleccionado: $id');
 
@@ -123,50 +122,6 @@ class _PerfilViewState extends State<PerfilView> {
       },
     );
   }
-
-  static Future<Map<int, String>> obtenerDiccionarioDeIds(String nombreJuego) async {
-    try {
-      var bgg = Bgg();
-      var searchBoardGamesResult = await bgg.searchBoardGames(nombreJuego);
-
-      if (searchBoardGamesResult != null && searchBoardGamesResult.isNotEmpty) {
-        // Utilizamos un Map para almacenar el ID como clave y el nombre como valor
-        Map<int, String> diccionarioIds = {};
-
-        for (var boardGame in searchBoardGamesResult) {
-          if (boardGame.id != null && boardGame.name != null) {
-            diccionarioIds[boardGame.id!] = boardGame.name!;
-            print(diccionarioIds[boardGame.id!] = boardGame.name!);
-          }
-        }
-
-        return diccionarioIds;
-      } else {
-        return {};
-      }
-    } catch (e) {
-      // Manejar errores aquí
-      print("Error al obtener el diccionario de IDs: $e");
-      return {};
-    }
-  }
-
-  Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;
-      //print("el nombre metido es: " + idJuego.toString() + nombre.toString() + userId.toString());
-      // Crear un nuevo documento para el juego de mesa
-      await db.collection("ColeccionJuegos")
-          .doc(userId)
-          .collection("juegos")
-          .doc(idJuego)
-          .set({"nombre": nombre}); // Puedes agregar más detalles si los necesitas
-
-    } catch (e) {
-      print("Error al agregar juego de mesa al usuario: $e");
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
