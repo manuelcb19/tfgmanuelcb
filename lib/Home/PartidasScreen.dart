@@ -1,12 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class PartidasScreen extends StatefulWidget {
+  final String idJuego;
+
+  PartidasScreen({required this.idJuego});
+
   @override
   _PartidasScreenState createState() => _PartidasScreenState();
 }
 
 class _PartidasScreenState extends State<PartidasScreen> {
-  List<Partida> partidas = [];
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> partidasTemp = [];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -22,14 +31,21 @@ class _PartidasScreenState extends State<PartidasScreen> {
             },
             child: Text('Agregar Partida'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              _agregarPartidasFirestore();
+            },
+            child: Text('Agregar a Firebase'),
+          ),
           Expanded(
             child: ListView.builder(
-              itemCount: partidas.length,
+              itemCount: partidasTemp.length,
               itemBuilder: (context, index) {
-                Partida partida = partidas[index];
+                String nombre = partidasTemp[index]["nombre"];
+                int puntuacion = partidasTemp[index]["puntuacion"];
                 return ListTile(
-                  title: Text(partida.nombre),
-                  subtitle: Text('Puntuación: ${partida.puntuacion}'),
+                  title: Text(nombre),
+                  subtitle: Text('Puntuación: $puntuacion'),
                 );
               },
             ),
@@ -75,27 +91,55 @@ class _PartidasScreenState extends State<PartidasScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Validar que se ingresen datos antes de agregar la partida
                 if (nombre.isNotEmpty) {
-                  Partida nuevaPartida = Partida(nombre: nombre, puntuacion: puntuacion);
                   setState(() {
-                    partidas.add(nuevaPartida);
+                    partidasTemp.add({
+                      "nombre": nombre,
+                      "puntuacion": puntuacion,
+                    });
                   });
                   Navigator.of(context).pop();
                 }
               },
-              child: Text('Agregar'),
+              child: Text('Agregar a lista temporal'),
             ),
           ],
         );
       },
     );
   }
-}
 
-class Partida {
-  final String nombre;
-  final int puntuacion;
+  void _agregarPartidasFirestore() async {
+    if (partidasTemp.isNotEmpty) {
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+      try {
+        // Obtener la referencia al documento del juego
+        DocumentReference<Map<String, dynamic>> juegoRef = db
+            .collection("ColeccionJuegos")
+            .doc(uid)
+            .collection("juegos")
+            .doc(widget.idJuego);
 
-  Partida({required this.nombre, required this.puntuacion});
+        // Obtener la referencia a la colección "partidas" dentro del documento del juego
+        CollectionReference<Map<String, dynamic>> partidasRef =
+        juegoRef.collection("partidas");
+
+        // Agregar un nuevo documento a la colección "partidas" con el diccionario completo
+        await partidasRef.add({
+          "partidas": Map.fromEntries(partidasTemp.map((e) =>
+              MapEntry<String, dynamic>(e['nombre'] as String, e['puntuacion']))),
+        });
+
+        setState(() {
+          partidasTemp = [];
+        });
+
+        print("Partidas agregadas a Firestore");
+      } catch (error) {
+        print("Error al agregar las partidas a Firestore: $error");
+      }
+    } else {
+      print("La lista de partidas está vacía");
+    }
+  }
 }

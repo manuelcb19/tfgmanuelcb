@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/Home/DetallesJuegoScreen.dart';
+import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -14,6 +15,8 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final List<FbBoardGame> juegos = [];
+  TextEditingController _searchController = TextEditingController();
+  DataHolder conexion = DataHolder();
 
   @override
   void initState() {
@@ -25,7 +28,7 @@ class _HomeViewState extends State<HomeView> {
     juegos.clear();
 
     String uid = FirebaseAuth.instance.currentUser!.uid;
-    String userId = uid; // Reemplaza con tu lógica para obtener el ID del usuario
+    String userId = uid;
 
     QuerySnapshot<Map<String, dynamic>> juegosSnapshot = await db
         .collection("ColeccionJuegos")
@@ -39,6 +42,94 @@ class _HomeViewState extends State<HomeView> {
     });
 
     setState(() {}); // Actualizar la interfaz de usuario después de descargar los juegos
+  }
+
+  Future<void> _agregarJuegoDialog() async {
+    String? selectedIdFromList = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        String nombreJuegoBuscado = ''; // Variable para almacenar el nombre del juego a buscar
+
+        return AlertDialog(
+          title: Text('Buscar y Seleccionar Juego'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: TextEditingController(text: nombreJuegoBuscado),
+                onChanged: (value) {
+                  nombreJuegoBuscado = value; // Actualizar el nombre del juego a buscar
+                },
+                decoration: InputDecoration(
+                  hintText: 'Ingrese el nombre del juego',
+                  contentPadding: EdgeInsets.all(16.0),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                // Lógica para obtener la lista de IDs usando tu función
+                Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuegoBuscado);
+
+                // Muestra una lista de nombres y permite al usuario seleccionar uno
+                String? selectedIdFromList = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Lista de IDs'),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (int id in diccionario.keys)
+                            ListTile(
+                              title: Text(diccionario[id]!),
+                              onTap: () async {
+                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
+                                // Imprime el ID correspondiente al nombre seleccionado
+                                print('ID seleccionado: $id');
+
+                                Navigator.of(context).pop(id.toString());
+                                descargarJuegos();
+                              },
+                            ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Aceptar'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                // Resto del código...
+                if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
+                  print("ID seleccionada: $selectedIdFromList");
+                  Navigator.of(context).pop(selectedIdFromList);
+                } else {
+                  // Mostrar mensaje o realizar otras acciones si es necesario
+                }
+              },
+              child: Text('Cancelar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Resto del código...
+    if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
+      print("ID seleccionada: $selectedIdFromList");
+      // Agregar el juego a la base de datos o realizar otras acciones según sea necesario
+    }
   }
 
   @override
@@ -73,6 +164,10 @@ class _HomeViewState extends State<HomeView> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _agregarJuegoDialog, // Asigna el método _agregarJuegoDialog al botón flotante
+        child: Icon(Icons.add),
       ),
     );
   }

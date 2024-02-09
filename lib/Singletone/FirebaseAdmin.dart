@@ -35,6 +35,7 @@ class FirebaseAdmin {
           "nombre": nombre,
           "yearPublished": boardGame?.yearPublished,
           "image": boardGame?.image.toString(),
+          "id": boardGame?.id
         }); // Puedes agregar más detalles si los necesitas
 
     } catch (e) {
