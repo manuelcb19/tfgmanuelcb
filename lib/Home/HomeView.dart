@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tfgmanuelcb/CustomViews/CustomDrawer.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/Home/DetallesJuegoScreen.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
+import 'package:tfgmanuelcb/onBoarding/LoginView.dart';
 
 class HomeView extends StatefulWidget {
   @override
@@ -42,6 +44,31 @@ class _HomeViewState extends State<HomeView> {
     });
 
     setState(() {}); // Actualizar la interfaz de usuario después de descargar los juegos
+  }
+
+  void fHomeViewDrawerOnTap(int indice) async {
+    print("---->>>> " + indice.toString());
+
+    if (indice == 0) {
+      FirebaseAuth.instance.signOut();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (BuildContext context) => LoginView()),
+        ModalRoute.withName('/loginview'),
+      );
+    } else if (indice == 1) {
+      Navigator.of(context).pushNamed(
+        '/editarperfil',
+        arguments: {},
+      );
+
+    }
+    else if (indice == 2) {
+      Navigator.of(context).pushNamed(
+        '/consultarjuegomesa',
+        arguments: {},
+      );
+
+    }
   }
 
   Future<void> _agregarJuegoDialog() async {
@@ -169,6 +196,7 @@ class _HomeViewState extends State<HomeView> {
         onPressed: _agregarJuegoDialog, // Asigna el método _agregarJuegoDialog al botón flotante
         child: Icon(Icons.add),
       ),
+      drawer: CustomDrawer(onItemTap: fHomeViewDrawerOnTap, imagen: "hhhh",),
     );
   }
 }

@@ -11,10 +11,23 @@ class FbPartidas {
 
   factory FbPartidas.fromFirestore(DocumentSnapshot<Map<String, dynamic>> partidaDoc) {
     final data = partidaDoc.data();
-    return FbPartidas(
-      puntuacion: data?['Campo2'],
-      nombre: data?['Campo1'],
-    );
+
+    // Asegúrate de que la clave "partidas" exista en los datos antes de acceder a sus elementos
+    if (data != null && data.containsKey("partidas")) {
+      final partidasData = data["partidas"] as Map<String, dynamic>;
+
+      // Selecciona el primer elemento del mapa como nombre y el segundo como puntuación
+      final entry = partidasData.entries.first;
+
+      return FbPartidas(
+        nombre: entry.key,
+        puntuacion: entry.value,
+      );
+    } else {
+      // Manejar el caso en que "partidas" no exista en los datos
+      // Puedes lanzar una excepción, devolver un valor predeterminado, o manejarlo de otra manera según tus necesidades
+      throw Exception("La clave 'partidas' no existe en los datos del documento.");
+    }
   }
 }
 

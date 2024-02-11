@@ -43,6 +43,19 @@ class FirebaseAdmin {
     }
   }
 
+  Future<BoardGame?> buscarJuegoMesa(String idJuego, String nombre) async {
+    BoardGame? boardGame;
+    try {
+      var bgg = Bgg();
+      boardGame = await bgg.getBoardGame(int.parse(idJuego));
+
+    } catch (e) {
+      print("Error al agregar juego de mesa al usuario: $e");
+    }
+
+    return boardGame;
+  }
+
 
   Future<void> anadirUsuario(String nombre, String apellidos, String img) async {
     String uidUsuario = FirebaseAuth.instance.currentUser!.uid;
