@@ -45,6 +45,7 @@ dependencies:
   geolocator: ^10.1.0
   google_maps_flutter: ^2.5.3
   bgg_api: ^0.8.0
+  drag_and_drop_lists: ^0.3.3
 
 dev_dependencies:
   flutter_test:
