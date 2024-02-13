@@ -18,7 +18,6 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   final List<FbBoardGame> juegos = [];
-  TextEditingController _searchController = TextEditingController();
   DataHolder conexion = DataHolder();
   late List<DragAndDropList> _contents;
 
@@ -54,19 +53,6 @@ class _HomeViewState extends State<HomeView> {
             ),
           ),
         ),
-        // Si necesitas un manejador de arrastre para las listas, puedes descomentar y ajustar el siguiente código:
-        /*
-        listDragHandle: DragHandle(
-          verticalAlignment: DragHandleVerticalAlignment.top,
-          child: Padding(
-            padding: EdgeInsets.only(right: 10),
-            child: Icon(
-              Icons.menu,
-              color: Colors.black26,
-            ),
-          ),
-        ),
-        */
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _agregarJuegoDialog,
@@ -94,17 +80,23 @@ class _HomeViewState extends State<HomeView> {
       FbBoardGame juego = FbBoardGame.fromFirestore(juegoDoc, null);
       juegos.add(juego);
     });
-
     setState(() {
-      _contents = juegos.map((juego) {
-        return DragAndDropList(
-          children: <DragAndDropItem>[
-            DragAndDropItem(
-              child: Card( // Usamos Card para un mejor estilo visual
+      _contents = [
+        DragAndDropList(
+          children: juegos.map((juego) {
+            return DragAndDropItem(
+              child: Card(
                 child: Column(
                   children: <Widget>[
                     ListTile(
-                      leading: Icon(Icons.image), // Sustituir por la imagen del juego si está disponible
+                      leading: juego.sUrlImg != null
+                          ? Image.network(
+                        juego.sUrlImg,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      )
+                          : Container(),
                       title: Text(juego.nombre),
                       subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
                       onTap: () {
@@ -119,22 +111,20 @@ class _HomeViewState extends State<HomeView> {
                   ],
                 ),
               ),
-            ),
-          ],
-        );
-      }).toList();
+            );
+          }).toList(),
+        ),
+      ];
     });
   }
 
   void _onItemReorder(int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
     setState(() {
-      // Guardar los elementos que se van a intercambiar
-      var movedItem1 = _contents[oldListIndex].children[oldItemIndex];
-      var movedItem2 = _contents[newListIndex].children[newItemIndex];
+      // Tomar el elemento movido
+      var movedItem = _contents[oldListIndex].children.removeAt(oldItemIndex);
 
-      // Intercambiar los elementos
-      _contents[oldListIndex].children[oldItemIndex] = movedItem2;
-      _contents[newListIndex].children[newItemIndex] = movedItem1;
+      // Insertarlo en la nueva posición
+      _contents[oldListIndex].children.insert(newItemIndex, movedItem);
     });
   }
 
@@ -169,9 +159,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _agregarJuegoDialog() async {
-    String? selectedIdFromList = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
+    String? selectedIdFromList = await showDialog<String>(context: context, builder: (BuildContext context) {
         String nombreJuegoBuscado = '';
 
         return AlertDialog(
@@ -211,7 +199,6 @@ class _HomeViewState extends State<HomeView> {
                               title: Text(diccionario[id]!),
                               onTap: () async {
                                 await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
-
                                 Navigator.of(context).pop(id.toString());
                                 descargarJuegos();
                               },
@@ -234,10 +221,10 @@ class _HomeViewState extends State<HomeView> {
                   print("ID seleccionada: $selectedIdFromList");
                   Navigator.of(context).pop(selectedIdFromList);
                 } else {
-                  // Mostrar mensaje o realizar otras acciones si es necesario
+
                 }
               },
-              child: Text('Cancelar'),
+              child: Text('Aceptar'),
             ),
           ],
         );

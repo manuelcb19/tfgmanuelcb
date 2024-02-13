@@ -34,10 +34,8 @@ class _PerfilViewState extends State<PerfilView> {
     Navigator.of(_context).popAndPushNamed("/homeview");
   }
 
-  Future<String?> _showSearchDialog(
-      BuildContext context,
-      TextEditingController searchController,
-      ) async {
+  Future<String?> _showSearchDialog(BuildContext context, TextEditingController searchController,)
+  async {
     TextEditingController _searchController = TextEditingController();
 
     return showDialog<String>(

@@ -36,7 +36,7 @@ class FirebaseAdmin {
           "yearPublished": boardGame?.yearPublished,
           "image": boardGame?.image.toString(),
           "id": boardGame?.id
-        }); // Puedes agregar más detalles si los necesitas
+        });
 
     } catch (e) {
       print("Error al agregar juego de mesa al usuario: $e");
