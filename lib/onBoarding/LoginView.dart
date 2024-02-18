@@ -88,7 +88,7 @@ class LoginView extends StatelessWidget {
                 Text("Tfg BoardGames", style: TextStyle(fontSize: 25)),
 
                 Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                    child:  customTextField(tecUsername: usuarioControlador, oscuro: false, sHint: "introduzca su usuario",)
+                    child:  customTextField(tecUsername: usuarioControlador, oscuro: false, sHint: "introduzca su Nombre",)
                 ),
 
                 Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/Home/PartidasScreen.dart';
+import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 // Asegúrate de que las rutas de importación sean correctas para tu proyecto.
 
 class DetallesJuegoScreen extends StatefulWidget {
@@ -15,7 +16,15 @@ class DetallesJuegoScreen extends StatefulWidget {
 }
 
 class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
-  final List<Map<String, dynamic>> partidasList = [];
+  DataHolder conexion = DataHolder();
+  List<Map<String, dynamic>> partidasList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    descargarPartidas();
+  }
+
 
   void descargarPartidas() async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -35,14 +44,9 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
       partidasList.add(partidaData);
     }
 
-    setState(() {}); // Actualizar la interfaz de usuario después de descargar los datos
+    setState(() {});
   }
 
-  @override
-  void initState() {
-    super.initState();
-    descargarPartidas();
-  }
 
   @override
   Widget build(BuildContext context) {

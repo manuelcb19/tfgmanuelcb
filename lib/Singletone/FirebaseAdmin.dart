@@ -2,6 +2,7 @@
 import 'package:bgg_api/bgg_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbUsuario.dart';
 
 class FirebaseAdmin {
@@ -20,6 +21,8 @@ class FirebaseAdmin {
       return false;
     }
   }
+
+
 
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
@@ -43,6 +46,27 @@ class FirebaseAdmin {
     }
   }
 
+  Future<List<FbBoardGame>> descargarJuegos() async {
+    List<FbBoardGame> juegos = [];
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    String userId = uid;
+
+    QuerySnapshot<Map<String, dynamic>> juegosSnapshot = await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .get();
+
+    juegosSnapshot.docs.forEach((juegoDoc) {
+      FbBoardGame juego = FbBoardGame.fromFirestore(juegoDoc, null);
+      juegos.add(juego);
+    });
+
+    return juegos;
+  }
+
   Future<BoardGame?> buscarJuegoMesa(String idJuego, String nombre) async {
     BoardGame? boardGame;
     try {
@@ -56,6 +80,27 @@ class FirebaseAdmin {
     return boardGame;
   }
 
+  Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> partidasList = [];
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    QuerySnapshot<Map<String, dynamic>> partidasSnapshot = await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juego?.id.toString())
+        .collection("partidas")
+        .get();
+
+    partidasList.clear();
+    for (var doc in partidasSnapshot.docs) {
+      Map<String, dynamic> partidaData = doc.data() as Map<String, dynamic>;
+      partidasList.add(partidaData);
+    }
+
+    return partidasList;
+  }
 
   Future<void> anadirUsuario(String nombre, String apellidos, String img) async {
     String uidUsuario = FirebaseAuth.instance.currentUser!.uid;

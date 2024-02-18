@@ -17,7 +17,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  final List<FbBoardGame> juegos = [];
+  List<FbBoardGame> juegos = [];
   DataHolder conexion = DataHolder();
   late List<DragAndDropList> _contents;
 
@@ -25,7 +25,7 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     super.initState();
     _contents = [];
-    descargarJuegos();
+    _downloadGames();
   }
 
   @override
@@ -64,26 +64,12 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-
-  void descargarJuegos() async {
-    juegos.clear();
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    String userId = uid;
-
-    QuerySnapshot<Map<String, dynamic>> juegosSnapshot = await db
-        .collection("ColeccionJuegos")
-        .doc(userId)
-        .collection("juegos")
-        .get();
-
-    juegosSnapshot.docs.forEach((juegoDoc) {
-      FbBoardGame juego = FbBoardGame.fromFirestore(juegoDoc, null);
-      juegos.add(juego);
-    });
+  void _downloadGames() async {
+    List<FbBoardGame> downloadedGames = await conexion.fbadmin.descargarJuegos();
     setState(() {
       _contents = [
         DragAndDropList(
-          children: juegos.map((juego) {
+          children: downloadedGames.map((juego) {
             return DragAndDropItem(
               child: Card(
                 child: Column(
@@ -200,7 +186,8 @@ class _HomeViewState extends State<HomeView> {
                               onTap: () async {
                                 await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
                                 Navigator.of(context).pop(id.toString());
-                                descargarJuegos();
+                                conexion.fbadmin.descargarJuegos();
+                                _downloadGames();
                               },
                             ),
                         ],
