@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/CustomViews/CustomDrawer.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
+import 'package:tfgmanuelcb/FirebaseObjects/FbUsuario.dart';
 import 'package:tfgmanuelcb/Home/DetallesJuegoScreen.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 import 'package:tfgmanuelcb/onBoarding/LoginView.dart';
@@ -20,12 +21,23 @@ class _HomeViewState extends State<HomeView> {
   List<FbBoardGame> juegos = [];
   DataHolder conexion = DataHolder();
   late List<DragAndDropList> _contents;
+  late FbUsuario perfil;
 
   @override
   void initState() {
     super.initState();
+    conseguirUsuario();
     _contents = [];
     _downloadGames();
+  }
+
+  Future<void> conseguirUsuario() async {
+
+    FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
+    setState(() {
+      this.perfil = perfil;
+    });
+    print("DDDDDDDDDDDDDDDDDDDDDDDDDDD"+perfil.shint);
   }
 
   @override
@@ -60,7 +72,7 @@ class _HomeViewState extends State<HomeView> {
       ),
       drawer: CustomDrawer(
         onItemTap: fHomeViewDrawerOnTap,
-        imagen: "hhhh",
+        imagen: perfil.shint,
       ),
     );
   }

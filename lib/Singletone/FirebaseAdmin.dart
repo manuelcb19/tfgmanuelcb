@@ -6,6 +6,7 @@ import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbUsuario.dart';
 
 class FirebaseAdmin {
+  FbUsuario? usuario;
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -82,6 +83,8 @@ class FirebaseAdmin {
 
 
 
+
+
   Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> partidasList = [];
@@ -102,6 +105,24 @@ class FirebaseAdmin {
     }
 
     return partidasList;
+  }
+
+
+  Future<FbUsuario> conseguirUsuario() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    print(uid);
+
+    DocumentReference<FbUsuario> enlace = db.collection("Perfil").doc(uid).withConverter(
+      fromFirestore: (DocumentSnapshot<Map<String, dynamic>> snapshot, _) => FbUsuario.fromFirestore(snapshot),
+      toFirestore: (FbUsuario usuario, _) => usuario.toFirestore(),
+    );
+
+    FbUsuario usuario;
+
+    DocumentSnapshot<FbUsuario> docSnap = await enlace.get();
+    usuario = docSnap.data()!;
+
+    return usuario;
   }
 
   Future<void> anadirUsuario(String nombre, String apellidos, String img) async {

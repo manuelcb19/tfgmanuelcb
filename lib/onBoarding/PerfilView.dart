@@ -98,7 +98,7 @@ class _PerfilViewState extends State<PerfilView> {
       return imageUrls;
     } catch (e) {
       // Maneja las excepciones según sea necesario
-      print("Error al obtener imágenes desde Firebase: $e");
+      print("Error al obtener iddddmágenes desde Firebase: $e");
       return []; // Puedes retornar una lista vacía o null según tus necesidades
     }
   }
