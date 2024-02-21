@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:bgg_api/bgg_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tfgmanuelcb/CustomViews/CustomButton.dart';
 import 'package:tfgmanuelcb/CustomViews/CustomTextField.dart';
+import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 
 class PerfilView extends StatefulWidget {
@@ -15,6 +17,7 @@ class PerfilView extends StatefulWidget {
 
 class _PerfilViewState extends State<PerfilView> {
   String? selectedGameId;
+  String _selectedImageUrl = "";
   TextEditingController tecNombre = TextEditingController();
   TextEditingController tecApellidos = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
@@ -23,15 +26,103 @@ class _PerfilViewState extends State<PerfilView> {
   ImagePicker _picker = ImagePicker();
   File _imagePreview = File("");
   String imagenPredefinida = "resources/imagenpredefinida.png";
-  bool mostrarPredefinida = true; // Variable para controlar la visibilidad de la imagen predefinida
+  bool mostrarPredefinida = true;
 
   void onClickAceptar() async {
     setState(() {
-      mostrarPredefinida = false; // Después de seleccionar una nueva imagen, ocultar la predefinida
+      mostrarPredefinida = false;
     });
 
-    conexion.fbadmin.anadirUsuario(tecNombre.text, tecApellidos.text, "gggg");
+    conexion.fbadmin.anadirUsuario(tecNombre.text, tecApellidos.text, _selectedImageUrl);
     Navigator.of(_context).popAndPushNamed("/homeview");
+  }
+
+  Future<void> _showImageDialog(BuildContext context) async {
+    List<String> imageUrls = await obtenerImagenesDesdeFirebase();
+    print(imageUrls.length);
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Seleccionar Imagen'),
+          content: Column(
+            children: [
+              for (String url in imageUrls)
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      mostrarPredefinida = false;
+                      // Actualiza solo la URL seleccionada
+                      _selectedImageUrl = url;
+                    });
+                    Navigator.of(context).pop();
+                  },
+                  child: Image.network(
+                    url,
+                    height: 100, // Ajusta la altura según tus necesidades
+                    width: 100, // Ajusta el ancho según tus necesidades
+                    fit: BoxFit.cover,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<List<String>> obtenerImagenesDesdeFirebase() async {
+    List<String> imageUrls = [];
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    try {
+      DocumentSnapshot<Map<String, dynamic>> imagenPerfilDoc = await db
+          .collection("Imagenes")
+          .doc("imagenperfil")
+          .get();
+
+      if (imagenPerfilDoc.exists) {
+        // Obtén los datos del documento
+        Map<String, dynamic> data = imagenPerfilDoc.data() ?? {};
+
+        // Itera sobre los valores del documento
+        data.forEach((key, value) {
+          // Verifica si el valor es de tipo String y no está vacío
+          if (value is String && value.isNotEmpty) {
+            imageUrls.add(value);
+          }
+        });
+      }
+
+      return imageUrls;
+    } catch (e) {
+      // Maneja las excepciones según sea necesario
+      print("Error al obtener imágenes desde Firebase: $e");
+      return []; // Puedes retornar una lista vacía o null según tus necesidades
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    List<Map<String, dynamic>> partidasList = [];
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    QuerySnapshot<Map<String, dynamic>> partidasSnapshot = await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juego?.id.toString())
+        .collection("partidas")
+        .get();
+
+    partidasList.clear();
+    for (var doc in partidasSnapshot.docs) {
+      Map<String, dynamic> partidaData = doc.data() as Map<String, dynamic>;
+      partidasList.add(partidaData);
+    }
+
+    return partidasList;
   }
 
   Future<String?> _showSearchDialog(BuildContext context, TextEditingController searchController,)
@@ -161,18 +252,11 @@ class _PerfilViewState extends State<PerfilView> {
               ),
               Column(
                 children: [
-                  if (mostrarPredefinida)
-                    Image.asset(
-                      imagenPredefinida,
+                  if (!mostrarPredefinida)
+                    Image.network(
+                      _selectedImageUrl,
                       width: 300,
                       height: 450,
-                    ),
-                  if (_imagePreview != null && !mostrarPredefinida)
-                    Image.file(
-                      _imagePreview,
-                      height: 200, // Ajusta la altura según tus necesidades
-                      width: 200, // Ajusta el ancho según tus necesidades
-                      fit: BoxFit.cover,
                     ),
                 ],
               ),
@@ -181,13 +265,13 @@ class _PerfilViewState extends State<PerfilView> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      //await _getImage();
+                      await _showImageDialog(context);
                     },
                     child: Text('Seleccionar Imagen desde Galería'),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Aquí debes abrir el diálogo para introducir el nombre del juego
+
                       _showSearchDialog(context, tecNombre);
                     },
                     child: Text('Añadir Juegos de Mesa'),

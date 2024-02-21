@@ -80,6 +80,8 @@ class FirebaseAdmin {
     return boardGame;
   }
 
+
+
   Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> partidasList = [];
