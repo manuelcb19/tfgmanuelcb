@@ -27,9 +27,10 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
                 if (nombreJuego != null && nombreJuego.isNotEmpty) {
                   print("Nombre del juego seleccionado: $nombreJuego");
                   Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
-                  (
+                  String? selectedIdFromList = await showDialog<String>(
                     context: context,
                     builder: (BuildContext context) {
+
                       return AlertDialog(
                         title: Text('Lista de IDs'),
                         content: Column(

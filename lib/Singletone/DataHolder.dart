@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:tfgmanuelcb/Singletone/FirebaseAdmin.dart';
 import 'package:tfgmanuelcb/Singletone/HttpAdmin.dart';
 import 'package:tfgmanuelcb/Singletone/DialogClass.dart';
+import 'package:tfgmanuelcb/Singletone/PlatformAdmin.dart';
 
 
 class DataHolder {
@@ -13,6 +15,7 @@ class DataHolder {
   DialogClass dialogclass = DialogClass();
   FirebaseAdmin fbadmin=FirebaseAdmin();
   HttpAdmin httpAdmin=HttpAdmin();
+  late PlatformAdmin platformAdmin;
   DataHolder._internal() {
   }
   void initDataHolder(){
@@ -22,5 +25,9 @@ class DataHolder {
 
   factory DataHolder(){
     return _dataHolder;
+  }
+
+  void initPlatformAdmin(BuildContext context){
+    platformAdmin=PlatformAdmin(context: context);
   }
 }

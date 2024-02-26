@@ -51,7 +51,6 @@ class _PerfilViewState extends State<PerfilView> {
                   onTap: () {
                     setState(() {
                       mostrarPredefinida = false;
-                      // Actualiza solo la URL seleccionada
                       _selectedImageUrl = url;
                     });
                     Navigator.of(context).pop();
