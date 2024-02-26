@@ -8,6 +8,7 @@ import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
 
+import 'Splash/SplashView.dart';
 import 'onBoarding/LoginView.dart';
 
 
@@ -26,10 +27,9 @@ class TfgManuelCB extends StatelessWidget{
         '/homeview':(context) => HomeView(),
         '/detallesjuegoscreen':(context) => DetallesJuegoScreen(),
         '/consultarjuegomesa':(context) => ConsultarJuegoMesa(),
-
-
+        '/splashview':(context) => SplashView(),
       },
-      initialRoute: '/loginview',
+      initialRoute: '/splashview',
     );
     return materialApp;
   }
