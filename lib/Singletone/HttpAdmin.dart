@@ -26,7 +26,6 @@ class HttpAdmin {
         return {};
       }
     } catch (e) {
-      // Manejar errores aquí
       print("Error al obtener el diccionario de IDs: $e");
       return {};
     }

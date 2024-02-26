@@ -78,6 +78,13 @@ class _HomeViewState extends State<HomeView> {
   }
   void _downloadGames() async {
     List<FbBoardGame> downloadedGames = await conexion.fbadmin.descargarJuegos();
+    int compararPorOrden(FbBoardGame a, FbBoardGame b) {
+      int ordenA = a.orden ?? 0;
+      int ordenB = b.orden ?? 0;
+      return ordenA.compareTo(ordenB);
+    }
+    downloadedGames.sort(compararPorOrden);
+
     setState(() {
       _contents = [
         DragAndDropList(
@@ -97,6 +104,39 @@ class _HomeViewState extends State<HomeView> {
                           : Container(),
                       title: Text(juego.nombre),
                       subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Eliminar juego'),
+                                content: Text('¿Estás seguro de que quieres borrar este juego?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Borrar el juego y actualizar la lista
+                                      setState(() {
+                                        conexion.fbadmin.eliminarJuego(juego.id.toString());
+                                        _downloadGames();
+                                      });
+                                      Navigator.of(context).pop(); // Cerrar el diálogo
+                                    },
+                                    child: Text('Aceptar'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                       onTap: () {
                         Navigator.push(
                           context,
@@ -115,7 +155,6 @@ class _HomeViewState extends State<HomeView> {
       ];
     });
   }
-
   void _onItemReorder(int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
     setState(() {
       // Tomar el elemento movido

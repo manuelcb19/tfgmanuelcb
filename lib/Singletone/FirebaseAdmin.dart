@@ -68,6 +68,19 @@ class FirebaseAdmin {
     return juegos;
   }
 
+  Future<void> eliminarJuego(String juegoId) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    String userId = uid;
+
+    await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juegoId)
+        .delete();
+  }
+
   Future<BoardGame?> buscarJuegoMesa(String idJuego, String nombre) async {
     BoardGame? boardGame;
     try {
@@ -80,10 +93,6 @@ class FirebaseAdmin {
 
     return boardGame;
   }
-
-
-
-
 
   Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
     FirebaseFirestore db = FirebaseFirestore.instance;

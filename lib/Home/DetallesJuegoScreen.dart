@@ -67,7 +67,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               widget.juego?.nombre ?? 'Nombre del Juego',
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           Expanded(

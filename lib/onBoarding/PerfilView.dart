@@ -23,8 +23,6 @@ class _PerfilViewState extends State<PerfilView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   late BuildContext _context;
   DataHolder conexion = DataHolder();
-  ImagePicker _picker = ImagePicker();
-  File _imagePreview = File("");
   String imagenPredefinida = "resources/imagenpredefinida.png";
   bool mostrarPredefinida = true;
 
@@ -97,9 +95,8 @@ class _PerfilViewState extends State<PerfilView> {
 
       return imageUrls;
     } catch (e) {
-      // Maneja las excepciones según sea necesario
-      print("Error al obtener iddddmágenes desde Firebase: $e");
-      return []; // Puedes retornar una lista vacía o null según tus necesidades
+      print("Error al obtener imágenes desde Firebase: $e");
+      return [];
     }
   }
 
@@ -171,9 +168,6 @@ class _PerfilViewState extends State<PerfilView> {
                               title: Text(diccionario[id]!),
                               onTap: () async {
                                 await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(),diccionario[id]!);
-                                // Imprime el ID correspondiente al nombre seleccionado
-                                print('ID seleccionado: $id');
-
                                 Navigator.of(context).pop(id.toString());
                               },
                             ),
@@ -190,13 +184,11 @@ class _PerfilViewState extends State<PerfilView> {
                     );
                   },
                 );
-
-                // Resto del código
                 if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
                   print("ID seleccionada: $selectedIdFromList");
                   Navigator.of(context).pop(selectedIdFromList);
                 } else {
-                  // Mostrar mensaje o realizar otras acciones si es necesario
+                  print("error al seleccionar el juego");
                 }
               },
             ),
@@ -267,7 +259,7 @@ class _PerfilViewState extends State<PerfilView> {
                     onPressed: () async {
                       await _showImageDialog(context);
                     },
-                    child: Text('Seleccionar Imagen desde Galería'),
+                    child: Text('Seleccionar Imagen de perfil'),
                   ),
                   ElevatedButton(
                     onPressed: () {

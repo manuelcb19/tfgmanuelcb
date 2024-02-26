@@ -5,12 +5,14 @@ class FbBoardGame {
   final int yearPublished;
   final String sUrlImg;
   final int id;
+  final int orden;
 
   FbBoardGame({
     required this.nombre,
     required this.yearPublished,
     required this.sUrlImg,
-    required this.id
+    required this.id,
+    required this.orden
   });
 
   factory FbBoardGame.fromFirestore(
@@ -19,6 +21,7 @@ class FbBoardGame {
       ) {
     final data = snapshot.data();
     return FbBoardGame(
+      orden: data?['orden'] ?? 0,
       sUrlImg: data?['image'] != null ? data!['image'] : "",
       nombre: data?['nombre'] ?? "",
       yearPublished: data?['yearPublished'] ?? 0,
@@ -33,6 +36,7 @@ class FbBoardGame {
     String? sUrlImg,
   }) {
     return FbBoardGame(
+      orden: orden ?? this.orden,
       nombre: nombre ?? this.nombre,
       yearPublished: yearPublished ?? this.yearPublished,
       sUrlImg: sUrlImg ?? this.sUrlImg,

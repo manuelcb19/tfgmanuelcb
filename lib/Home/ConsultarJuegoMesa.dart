@@ -8,9 +8,8 @@ class ConsultarJuegoMesa extends StatefulWidget {
 }
 
 class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
-  TextEditingController _searchController = TextEditingController();
   DataHolder conexion = DataHolder();
-  BoardGame? boardGame; // Variable para almacenar la información del juego buscado
+  BoardGame? boardGame;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +27,7 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
                 if (nombreJuego != null && nombreJuego.isNotEmpty) {
                   print("Nombre del juego seleccionado: $nombreJuego");
                   Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
-
-                  String? selectedIdFromList = await showDialog<String>(
+                  (
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(

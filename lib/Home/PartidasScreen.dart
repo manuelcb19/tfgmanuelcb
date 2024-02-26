@@ -15,8 +15,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Map<String, dynamic>> partidasTemp = [];
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
