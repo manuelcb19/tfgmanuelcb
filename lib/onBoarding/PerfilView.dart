@@ -149,7 +149,6 @@ class _PerfilViewState extends State<PerfilView> {
               onPressed: () async {
                 String nombreJuego = _searchController.text.trim();
 
-                // Lógica para obtener la lista de IDs usando tu función
                 Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
 
                 // Muestra una lista de IDs y permite al usuario seleccionar uno
