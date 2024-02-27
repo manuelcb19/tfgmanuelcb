@@ -7,9 +7,9 @@ import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 // Asegúrate de que las rutas de importación sean correctas para tu proyecto.
 
 class DetallesJuegoScreen extends StatefulWidget {
-  final FbBoardGame? juego;
 
-  DetallesJuegoScreen({this.juego});
+  DataHolder conexion = DataHolder();
+  late FbBoardGame? juego;
 
   @override
   _DetallesJuegoScreenState createState() => _DetallesJuegoScreenState();
@@ -22,28 +22,16 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   @override
   void initState() {
     super.initState();
+    widget.juego = conexion.juego;
     descargarPartidas();
+
   }
 
 
   void descargarPartidas() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    String userId = FirebaseAuth.instance.currentUser!.uid;
-
-    QuerySnapshot<Map<String, dynamic>> partidasSnapshot = await db
-        .collection("ColeccionJuegos")
-        .doc(userId)
-        .collection("juegos")
-        .doc(widget.juego?.id.toString())
-        .collection("partidas")
-        .get();
 
     partidasList.clear();
-    for (var doc in partidasSnapshot.docs) {
-      Map<String, dynamic> partidaData = doc.data() as Map<String, dynamic>;
-      partidasList.add(partidaData);
-    }
-
+    partidasList = await conexion.fbadmin.descargarPartidas(widget.juego);
     setState(() {});
   }
 
@@ -89,7 +77,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PartidasScreen(idJuego: widget.juego!.id.toString()),
+              builder: (context) => PartidasScreen(),
             ),
           );
         },

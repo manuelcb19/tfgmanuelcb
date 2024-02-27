@@ -2,18 +2,28 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class PartidasScreen extends StatefulWidget {
-  final String idJuego;
+import '../Singletone/DataHolder.dart';
 
-  PartidasScreen({required this.idJuego});
+class PartidasScreen extends StatefulWidget {
+  late String idJuego;
+
 
   @override
   _PartidasScreenState createState() => _PartidasScreenState();
 }
 
 class _PartidasScreenState extends State<PartidasScreen> {
+
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Map<String, dynamic>> partidasTemp = [];
+  DataHolder conexion = DataHolder();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.idJuego = conexion.juego.id.toString();
+  }
+
 
   @override
   Widget build(BuildContext context) {

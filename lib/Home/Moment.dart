@@ -113,13 +113,12 @@ class _MomentViewState extends State<Moment> {
 
     if (_imagePreview != null && memoryText.isNotEmpty && contenido.isNotEmpty) {
       String imageUrl = await setearUrlImagen();
-      print(imageUrl.toString());
+      print("fffffffff"+imageUrl.toString());
       if (imageUrl.isNotEmpty) {
         await addMemory(memoryText, contenido, imageUrl);
         await descargarMemories();
-        tecTitulo.clear();
-        tecPost.clear();
         _imagePreview = File("");
+        print("fffffffff");
       } else {
         print("Error al obtener la URL de la imagen.");
       }

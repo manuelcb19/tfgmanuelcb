@@ -5,11 +5,14 @@ import 'package:tfgmanuelcb/Singletone/HttpAdmin.dart';
 import 'package:tfgmanuelcb/Singletone/DialogClass.dart';
 import 'package:tfgmanuelcb/Singletone/PlatformAdmin.dart';
 
+import '../FirebaseObjects/FbBoardGame.dart';
+
 
 class DataHolder {
 
   static final DataHolder _dataHolder = DataHolder._internal();
 
+  late FbBoardGame juego;
   String sNombre="TfgManuelCB";
   FirebaseFirestore db = FirebaseFirestore.instance;
   DialogClass dialogclass = DialogClass();
