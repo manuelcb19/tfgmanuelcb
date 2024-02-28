@@ -3,6 +3,7 @@ import 'package:bgg_api/bgg_api.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
+import 'package:tfgmanuelcb/FirebaseObjects/FbImagen.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbUsuario.dart';
 
 class FirebaseAdmin {
@@ -66,6 +67,25 @@ class FirebaseAdmin {
     });
 
     return juegos;
+  }
+
+  Future<List<FbImagen>> descargarMemories(String userId) async {
+    List<FbImagen> imagenes = [];
+    try {
+      QuerySnapshot<Map<String, dynamic>> memoriesSnapshot = await db
+          .collection("memory")
+          .doc(userId)
+          .collection("memories")
+          .get();
+
+      imagenes = memoriesSnapshot.docs
+          .map((doc) => FbImagen.fromFirestore(doc, null))
+          .toList();
+    } catch (e) {
+      print("Error al descargar memorias: $e");
+    }
+
+    return imagenes;
   }
 
   Future<void> eliminarJuego(String juegoId) async {

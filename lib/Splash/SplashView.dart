@@ -30,7 +30,7 @@ class _SplashViewState extends State<SplashView>{
 
     if (FirebaseAuth.instance.currentUser != null) {
       String uid = FirebaseAuth.instance.currentUser!.uid;
-      DocumentReference<FbUsuario> enlace = db.collection("Usuarios").doc(uid).withConverter<FbUsuario>(
+      DocumentReference<FbUsuario> enlace = db.collection("Perfil").doc(uid).withConverter<FbUsuario>(
         fromFirestore: (snapshot, options) => FbUsuario.fromFirestore(snapshot),
         toFirestore: (usuario, options) => usuario.toFirestore(),
       );

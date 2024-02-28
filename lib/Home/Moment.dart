@@ -16,7 +16,8 @@ class Moment extends StatefulWidget {
 }
 
 class _MomentViewState extends State<Moment> {
-  TextEditingController tecTitulo = TextEditingController();
+
+
   TextEditingController tecPost = TextEditingController();
   DataHolder conexion = DataHolder();
   FirebaseFirestore db = FirebaseFirestore.instance;
@@ -53,36 +54,42 @@ class _MomentViewState extends State<Moment> {
     final storageRef = FirebaseStorage.instance.ref();
 
     String rutaEnNube =
-        "posts/$userId/imgs/${DateTime.now().millisecondsSinceEpoch}.jpg";
+        "memory/" + FirebaseAuth.instance.currentUser!.uid + "/memories/" +
+        DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
+
     print("RUTA DONDE VA A GUARDARSE LA IMAGEN: $rutaEnNube");
 
     final rutaAFicheroEnNube = storageRef.child(rutaEnNube);
+    print("La ruta donde se va a guardar en la nube es: " + rutaAFicheroEnNube.toString());
 
     final metadata = SettableMetadata(contentType: "image/jpeg");
+
     try {
       await rutaAFicheroEnNube.putFile(_imagePreview, metadata);
-
       print("SE HA SUBIDO LA IMAGEN");
 
       String url = await rutaAFicheroEnNube.getDownloadURL();
       print("URL de la imagen: $url");
+
       return url;
     } on FirebaseException catch (e) {
       print("ERROR AL SUBIR IMAGEN: " + e.toString());
       print("STACK TRACE: " + e.stackTrace.toString());
-      return "";
+      print("RUTA DEL ARCHIVO: $rutaEnNube");
+      return "no funciona";
     }
   }
 
-  Future<void> addMemory(String memoryText, String contenido, String imageUrl) async {
+  Future<void> addMemory(String contenido, String imageUrl) async {
+    print("hasta aqui ha llegado");
     try {
+      print("hasta aqui ha llegado");
       await db.collection("memory")
           .doc(userId)
           .collection("memories")
           .add({
-        "nombre": memoryText,
         "contenido": contenido,
-        "imagen": imageUrl,
+        "imagen": imageUrl.toString(),
       });
     } catch (e) {
       print("Error al agregar memoria: $e");
@@ -91,41 +98,41 @@ class _MomentViewState extends State<Moment> {
 
   Future<void> descargarMemories() async {
     try {
-      QuerySnapshot<Map<String, dynamic>> memoriesSnapshot = await db
-          .collection("memory")
-          .doc(userId)
-          .collection("memories")
-          .get();
-
+      List<FbImagen> imagenesDescargadas = await conexion.fbadmin.descargarMemories(userId);
       setState(() {
-        imagenes = memoriesSnapshot.docs
-            .map((doc) => FbImagen.fromFirestore(doc, null))
-            .toList();
+        imagenes = imagenesDescargadas;
       });
+
+      print("Número de imágenes descargadas: ${imagenes.length}");
     } catch (e) {
       print("Error al descargar memorias: $e");
     }
   }
 
-  Future<void> subirElPost() async {
-    String memoryText = tecTitulo.text;
+  Future<void> subirLaImagen() async {
     String contenido = tecPost.text;
+    print("el titulo del post es : " + contenido.toString());
+    print("la iamgen es: "+ _imagePreview.toString());
+    if (_imagePreview != null && _imagePreview.existsSync()) {
+      try {
+        String imageUrl = await setearUrlImagen();
+        print("URL de la imagen: $imageUrl");
 
-    if (_imagePreview != null && memoryText.isNotEmpty && contenido.isNotEmpty) {
-      String imageUrl = await setearUrlImagen();
-      print("fffffffff"+imageUrl.toString());
-      if (imageUrl.isNotEmpty) {
-        await addMemory(memoryText, contenido, imageUrl);
-        await descargarMemories();
-        _imagePreview = File("");
-        print("fffffffff");
-      } else {
-        print("Error al obtener la URL de la imagen.");
+        if (imageUrl.isNotEmpty) {
+          await addMemory(contenido, imageUrl);
+          await descargarMemories();
+          print("Imagen subida correctamente.");
+        } else {
+          print("Error al obtener la URL de la imagen.");
+        }
+      } catch (e) {
+        print("Error al subir la imagen: $e");
       }
     } else {
-      print("Complete todos los campos antes de subir el post.");
+      print("Seleccione una imagen antes de subir el post.");
     }
   }
+
 
   Widget creadorDeSeparadorLista(BuildContext context, int index) {
     return Divider();
@@ -146,8 +153,6 @@ class _MomentViewState extends State<Moment> {
   }
 
   void _mostrarDialogo() {
-    TextEditingController tecTituloDialogo = TextEditingController();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -156,7 +161,7 @@ class _MomentViewState extends State<Moment> {
           content: Column(
             children: [
               customTextField(
-                tecUsername: tecTituloDialogo,
+                tecUsername: tecPost,
                 oscuro: false,
                 sHint: "Título del momento",
               ),
@@ -164,22 +169,21 @@ class _MomentViewState extends State<Moment> {
                 onPressed: () => onCameraClicked(),
                 child: Text("Desde cámara"),
               ),
-              ElevatedButton(
-                onPressed: () => onGalleyClicked(),
-                child: Text("Desde galería"),
-              ),
             ],
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
-                String titulo = tecTituloDialogo.text;
-                if (titulo.isNotEmpty) {
+                String titulo = tecPost.text;
+                if (_imagePreview != null && titulo.isNotEmpty) {
                   print("Título seleccionado: $titulo");
-                  subirElPost();
+                  print(_imagePreview.toString() + "Esta es la imagen");
+                  String imageUrl = await setearUrlImagen();
+                  print(imageUrl.toString());
+                  await addMemory(titulo, imageUrl);
                 } else {
-                  print("Ingrese un título antes de subir el post.");
+                  print("Seleccione una imagen y un título antes de subir el post.");
                 }
               },
               child: Text("Subir"),

@@ -28,7 +28,7 @@ class FbImagen{
   }) {
     return FbImagen(
 
-        imagen: imagen ?? this.imagen,
+        imagen: imagen,
         contenido: contenido ?? this.contenido,
     );
   }
