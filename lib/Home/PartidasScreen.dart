@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../Singletone/DataHolder.dart';
+import 'DetallesJuegoScreen.dart';
 
 class PartidasScreen extends StatefulWidget {
 
@@ -37,17 +38,25 @@ class _PartidasScreenState extends State<PartidasScreen> {
       ),
       body: Column(
         children: [
-          ElevatedButton(
-            onPressed: () {
-              _agregarPartida();
-            },
-            child: Text('Agregar Partida'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _agregarPartidasFirestore();
-            },
-            child: Text('Agregar a Firebase'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: _agregarPartida,
+                child: Text('Agregar Jugador'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _agregarPartidasFirestore();
+                  Navigator.of(context).pop(); // Cerrar el AlertDialog
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
+                  );
+                },
+                child: Text('Agregar Partida al Juego'),
+              ),
+            ],
           ),
           Expanded(
             child: ListView.builder(
@@ -110,8 +119,9 @@ class _PartidasScreenState extends State<PartidasScreen> {
                     });
                   });
                   Navigator.of(context).pop();
+
               },
-              child: Text('Agregar a lista temporal'),
+              child: Text('Agregar Jugador'),
             ),
           ],
         );

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -16,8 +17,6 @@ class Moment extends StatefulWidget {
 }
 
 class _MomentViewState extends State<Moment> {
-
-
   TextEditingController tecPost = TextEditingController();
   DataHolder conexion = DataHolder();
   FirebaseFirestore db = FirebaseFirestore.instance;
@@ -41,7 +40,7 @@ class _MomentViewState extends State<Moment> {
     }
   }
 
-  void onGalleyClicked() async {
+  void onGalleryClicked() async {
     XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
@@ -52,10 +51,8 @@ class _MomentViewState extends State<Moment> {
 
   Future<String> setearUrlImagen() async {
     final storageRef = FirebaseStorage.instance.ref();
-
     String rutaEnNube =
-        "memory/" + FirebaseAuth.instance.currentUser!.uid + "/memories/" +
-        DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
+        "memory/" + userId + "/memories/" + DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
 
     print("RUTA DONDE VA A GUARDARSE LA IMAGEN: $rutaEnNube");
 
@@ -84,10 +81,7 @@ class _MomentViewState extends State<Moment> {
     print("hasta aqui ha llegado");
     try {
       print("hasta aqui ha llegado");
-      await db.collection("memory")
-          .doc(userId)
-          .collection("memories")
-          .add({
+      await db.collection("memory").doc(userId).collection("memories").add({
         "contenido": contenido,
         "imagen": imageUrl.toString(),
       });
@@ -112,7 +106,7 @@ class _MomentViewState extends State<Moment> {
   Future<void> subirLaImagen() async {
     String contenido = tecPost.text;
     print("el titulo del post es : " + contenido.toString());
-    print("la iamgen es: "+ _imagePreview.toString());
+    print("la imagen es: " + _imagePreview.toString());
     if (_imagePreview != null && _imagePreview.existsSync()) {
       try {
         String imageUrl = await setearUrlImagen();
@@ -133,13 +127,12 @@ class _MomentViewState extends State<Moment> {
     }
   }
 
-
   Widget creadorDeSeparadorLista(BuildContext context, int index) {
     return Divider();
   }
 
   Widget creadorDeItemLista(BuildContext context, int index) {
-    print("FFFFFFFFFFFFFFFFFFFFF"+imagenes[index].imagen.toString());
+    print("FFFFFFFFFFFFFFFFFFFFF" + imagenes[index].imagen.toString());
     return CustomCellView(sTexto: imagenes[index].contenido, imagen: imagenes[index].imagen);
   }
 
@@ -166,8 +159,11 @@ class _MomentViewState extends State<Moment> {
                 sHint: "Título del momento",
               ),
               ElevatedButton(
-                onPressed: () => onCameraClicked(),
-                child: Text("Desde cámara"),
+                onPressed: () => onGalleryClicked(),
+                child: Text("Desde galería"),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.blue, // Puedes cambiar el color del botón
+                ),
               ),
             ],
           ),
@@ -182,11 +178,15 @@ class _MomentViewState extends State<Moment> {
                   String imageUrl = await setearUrlImagen();
                   print(imageUrl.toString());
                   await addMemory(titulo, imageUrl);
+                  setState(() {});
                 } else {
                   print("Seleccione una imagen y un título antes de subir el post.");
                 }
               },
               child: Text("Subir"),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.blue, // Puedes cambiar el color del botón
+              ),
             ),
           ],
         );
@@ -197,14 +197,21 @@ class _MomentViewState extends State<Moment> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(DataHolder().sNombre)),
-        body: Center(
+      appBar: AppBar(
+        title: Text(DataHolder().sNombre),
+        backgroundColor: Colors.blue, // Puedes cambiar el color del app bar según tus preferencias
+      ),
+      body: Container(
+        color: Colors.grey[200], // Fondo gris claro para el cuerpo
+        child: Center(
           child: Lista(),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _mostrarDialogo,
-          child: Icon(Icons.add),
-        ),
-      );
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _mostrarDialogo,
+        child: Icon(Icons.add),
+        backgroundColor: Colors.blue, // Puedes cambiar el color del botón flotante
+      ),
+    );
   }
 }
