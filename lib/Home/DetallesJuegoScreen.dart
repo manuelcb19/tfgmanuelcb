@@ -81,7 +81,10 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/partidasscreen', arguments: {});
+          Navigator.pushNamed(context, '/partidasscreen', arguments: {}).then((_) {
+            // Esta parte se ejecutará cuando regreses de PartidasScreen
+            descargarPartidas();
+          });
         },
         child: Icon(Icons.arrow_forward),
       ),

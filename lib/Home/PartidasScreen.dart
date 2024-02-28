@@ -119,9 +119,8 @@ class _PartidasScreenState extends State<PartidasScreen> {
                     });
                   });
                   Navigator.of(context).pop();
-
               },
-              child: Text('Agregar Jugador'),
+              child: Text('Agregar a lista temporal'),
             ),
           ],
         );
@@ -133,30 +132,38 @@ class _PartidasScreenState extends State<PartidasScreen> {
     if (partidasTemp.isNotEmpty) {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       try {
-        // Obtener la referencia al documento del juego
+
         DocumentReference<Map<String, dynamic>> juegoRef = db
             .collection("ColeccionJuegos")
             .doc(uid)
             .collection("juegos")
             .doc(widget.idJuego);
 
-        // Obtener la referencia a la colección "partidas" dentro del documento del juego
         CollectionReference<Map<String, dynamic>> partidasRef =
         juegoRef.collection("partidas");
 
-        // Agregar un nuevo documento a la colección "partidas" con el diccionario completo
+        QuerySnapshot<Map<String, dynamic>> snapshot =
+        await partidasRef.orderBy('orden', descending: true).limit(1).get();
+
+        int nuevoOrden = 1;
+
+        if (snapshot.docs.isNotEmpty) {
+          nuevoOrden = (snapshot.docs.first['orden'] as int) + 1;
+        }
+
         await partidasRef.add({
           "partidas": Map.fromEntries(partidasTemp.map((e) =>
               MapEntry<String, dynamic>(e['nombre'] as String, e['puntuacion']))),
+          "orden": nuevoOrden,
         });
 
         setState(() {
           partidasTemp = [];
         });
 
-        print("Partidas agregadas a Firestore");
+        print("Partida agregada a Firestore con orden $nuevoOrden");
       } catch (error) {
-        print("Error al agregar las partidas a Firestore: $error");
+        print("Error al agregar la partida a Firestore: $error");
       }
     } else {
       print("La lista de partidas está vacía");
