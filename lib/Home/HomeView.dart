@@ -28,6 +28,7 @@ class _HomeViewState extends State<HomeView> {
     conseguirUsuario();
     ListaJuegosdrag = [];
     _initData();
+    cargarDatosDesdeCache();
   }
 
   Future<void> conseguirUsuario() async {
@@ -37,8 +38,23 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  Future<void> cargarDatosDesdeCache() async {
+    List<FbBoardGame> cachedGames = await conexion.loadAllFbJuegos();
+
+    if (cachedGames.isNotEmpty) {
+      print("Juegos en el caché:");
+      for (var juego in cachedGames) {
+        print("${juego.id}: ${juego.nombre}");
+      }
+    }
+  }
+
   Future<void> _initData() async {
-    List<FbBoardGame> downloadedGames = await conexion.fbadmin.descargarJuegos();
+    List<FbBoardGame> downloadedGames = await conexion.loadAllFbJuegos();
+    if(downloadedGames.isEmpty)
+      {
+    downloadedGames = await conexion.fbadmin.descargarJuegos();
+      }
     int compararPorOrden(FbBoardGame a, FbBoardGame b) {
       int ordenA = a.orden ?? 0;
       int ordenB = b.orden ?? 0;
@@ -85,9 +101,9 @@ class _HomeViewState extends State<HomeView> {
                                     // Borrar el juego y actualizar la lista
                                     setState(() {
                                       conexion.fbadmin.eliminarJuego(juego.id.toString());
-                                      _initData(); // Actualizar la lista después de eliminar
+                                      _initData();
                                     });
-                                    Navigator.of(context).pop(); // Cerrar el diálogo
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text('Aceptar'),
                                 ),
@@ -99,12 +115,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     onTap: () {
                       conexion.juego = juego;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetallesJuegoScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/detallesjuegoscreen', arguments: {});
                     },
                   ),
                 ],
@@ -114,7 +125,7 @@ class _HomeViewState extends State<HomeView> {
         }).toList(),
       ),
     ];
-
+    conexion.saveAllJuegosInCache(downloadedGames);
     setState(() {
       ListaJuegosdrag = lists;
     });
@@ -151,10 +162,7 @@ class _HomeViewState extends State<HomeView> {
       );
 
     } else if (indice == 2) {
-      Navigator.of(context).pushNamed(
-        '/consultarjuegomesa',
-        arguments: {},
-      );
+      Navigator.of(context).pushNamed('/consultarjuegomesa', arguments: {},);
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:tfgmanuelcb/Home/ConsultarJuegoMesa.dart';
 import 'package:tfgmanuelcb/Home/DetallesJuegoScreen.dart';
 import 'package:tfgmanuelcb/Home/HomeView.dart';
 import 'package:tfgmanuelcb/Home/Moment.dart';
+import 'package:tfgmanuelcb/Home/PartidasScreen.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
@@ -30,6 +31,7 @@ class TfgManuelCB extends StatelessWidget{
         '/consultarjuegomesa':(context) => ConsultarJuegoMesa(),
         '/splashview':(context) => SplashView(),
         '/moment':(context) => Moment(),
+        '/partidasscreen':(context) => PartidasScreen(),
       },
       initialRoute: '/splashview',
     );

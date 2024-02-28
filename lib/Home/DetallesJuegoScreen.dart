@@ -23,10 +23,17 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   void initState() {
     super.initState();
     widget.juego = conexion.juego;
-    descargarPartidas();
+    cargarJuego();
 
   }
 
+  Future<void> cargarJuego() async {
+    await conexion.fbadmin.descargarPartidas(conexion.juego).then((partidas) {
+      setState(() {
+        partidasList = partidas;
+      });
+    });
+  }
 
   void descargarPartidas() async {
 
@@ -74,12 +81,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PartidasScreen(),
-            ),
-          );
+          Navigator.pushNamed(context, '/partidasscreen', arguments: {});
         },
         child: Icon(Icons.arrow_forward),
       ),

@@ -30,6 +30,7 @@ class FbBoardGame {
     );
   }
 
+
   FbBoardGame copyWith({
     String? nombre,
     int? yearPublished,

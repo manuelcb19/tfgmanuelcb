@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import '../Singletone/DataHolder.dart';
 
 class PartidasScreen extends StatefulWidget {
-  late String idJuego;
+
+  String idJuego = DataHolder().juego.id.toString();
 
 
   @override
@@ -17,13 +18,16 @@ class _PartidasScreenState extends State<PartidasScreen> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Map<String, dynamic>> partidasTemp = [];
   DataHolder conexion = DataHolder();
+  String nombre = '';
 
-  @override
-  void initState() {
-    super.initState();
-    widget.idJuego = conexion.juego.id.toString();
+
+  Future<void> cargarJuego() async {
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      nombre = conexion.juego.id.toString();
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +71,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        String nombre = '';
+
         int puntuacion = 0;
 
         return AlertDialog(
@@ -98,8 +102,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
               child: Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                if (nombre.isNotEmpty) {
+              onPressed: () async {
                   setState(() {
                     partidasTemp.add({
                       "nombre": nombre,
@@ -107,7 +110,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
                     });
                   });
                   Navigator.of(context).pop();
-                }
               },
               child: Text('Agregar a lista temporal'),
             ),
