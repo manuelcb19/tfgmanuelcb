@@ -199,10 +199,10 @@ class _MomentViewState extends State<Moment> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Memory'),
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: Container(
         color: Colors.grey[200],
         child: Center(

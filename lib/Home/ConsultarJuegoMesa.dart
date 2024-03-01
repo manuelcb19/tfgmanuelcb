@@ -16,10 +16,10 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Introduce Partida'),
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

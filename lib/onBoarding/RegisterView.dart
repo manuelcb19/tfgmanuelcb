@@ -87,10 +87,10 @@ class RegisterView extends StatelessWidget{
         appBar: AppBar(
           title: const Text('Registrarse'),
           centerTitle: true,
-          shadowColor: Colors.black,
+          shadowColor: Colors.white,
           backgroundColor: Colors.deepPurple,
         ),
-        backgroundColor: Colors.white10,
+        backgroundColor: Colors.white,
         body:
         Center(
           child: ConstrainedBox(constraints: BoxConstraints(

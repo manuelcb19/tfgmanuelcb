@@ -209,10 +209,10 @@ class _PerfilViewState extends State<PerfilView> {
       appBar: AppBar(
         title: const Text('Perfil'),
         centerTitle: true,
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(

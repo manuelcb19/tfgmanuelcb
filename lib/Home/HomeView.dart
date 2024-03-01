@@ -264,10 +264,10 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista Juegos'),
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: FutureBuilder(
         future: _loadingFuture,
         builder: (context, snapshot) {

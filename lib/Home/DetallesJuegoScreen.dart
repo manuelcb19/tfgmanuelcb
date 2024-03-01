@@ -11,7 +11,7 @@ import '../CustomViews/CustomTextField.dart';
 class DetallesJuegoScreen extends StatefulWidget {
 
   DataHolder conexion = DataHolder();
-  late FbBoardGame? juego;
+
 
   @override
   _DetallesJuegoScreenState createState() => _DetallesJuegoScreenState();
@@ -20,13 +20,14 @@ class DetallesJuegoScreen extends StatefulWidget {
 class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   DataHolder conexion = DataHolder();
   List<Map<String, dynamic>> partidasList = [];
+  late FbBoardGame? juego;
   TextEditingController tecNombre = TextEditingController();
   TextEditingController tecPuntuacion = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    widget.juego = conexion.juego;
+    juego = conexion.juego;
     cargarJuego();
 
   }
@@ -42,7 +43,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   void descargarPartidas() async {
 
     partidasList.clear();
-    partidasList = await conexion.fbadmin.descargarPartidas(widget.juego);
+    partidasList = await conexion.fbadmin.descargarPartidas(juego);
     setState(() {});
   }
 
@@ -73,7 +74,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                 String nuevoNombre = tecNombre.text;
                 int nuevaPuntuacion = int.parse(tecPuntuacion.text);
 
-                conexion.fbadmin.modificarPartida(widget.juego, orden, nuevoNombre, nuevaPuntuacion);
+                conexion.fbadmin.modificarPartida(juego, orden, nuevoNombre, nuevaPuntuacion);
                 Navigator.of(context).pop();
                 callback();
               },
@@ -91,15 +92,15 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tus partidas'),
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
-          if (widget.juego?.sUrlImg != null)
+          if (juego?.sUrlImg != null)
             Image.network(
-              widget.juego!.sUrlImg!,
+              juego!.sUrlImg!,
               width: MediaQuery.of(context).size.width,
               height: 200,
               fit: BoxFit.cover,
@@ -107,7 +108,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              widget.juego?.nombre ?? 'Nombre del Juego',
+              juego?.nombre ?? 'Nombre del Juego',
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),

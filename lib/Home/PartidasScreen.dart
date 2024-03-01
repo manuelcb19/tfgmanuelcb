@@ -35,10 +35,10 @@ class _PartidasScreenState extends State<PartidasScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Partidas'),
-        shadowColor: Colors.black,
+        shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.white10,
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           Row(
