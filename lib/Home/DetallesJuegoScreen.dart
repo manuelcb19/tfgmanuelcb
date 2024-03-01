@@ -47,8 +47,11 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.juego?.nombre ?? 'Detalles del Juego'),
+        title: const Text('Tus partidas'),
+        shadowColor: Colors.black,
+        backgroundColor: Colors.deepPurple,
       ),
+      backgroundColor: Colors.white10,
       body: Column(
         children: [
           if (widget.juego?.sUrlImg != null)

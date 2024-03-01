@@ -162,7 +162,7 @@ class _MomentViewState extends State<Moment> {
                 onPressed: () => onGalleryClicked(),
                 child: Text("Desde galería"),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.blue, // Puedes cambiar el color del botón
+                  backgroundColor: Colors.blue,
                 ),
               ),
             ],
@@ -185,7 +185,7 @@ class _MomentViewState extends State<Moment> {
               },
               child: Text("Subir"),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue, // Puedes cambiar el color del botón
+                backgroundColor: Colors.blue,
               ),
             ),
           ],
@@ -198,11 +198,13 @@ class _MomentViewState extends State<Moment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(DataHolder().sNombre),
-        backgroundColor: Colors.blue, // Puedes cambiar el color del app bar según tus preferencias
+        title: const Text('Memory'),
+        shadowColor: Colors.black,
+        backgroundColor: Colors.deepPurple,
       ),
+      backgroundColor: Colors.white10,
       body: Container(
-        color: Colors.grey[200], // Fondo gris claro para el cuerpo
+        color: Colors.grey[200],
         child: Center(
           child: Lista(),
         ),
@@ -210,7 +212,7 @@ class _MomentViewState extends State<Moment> {
       floatingActionButton: FloatingActionButton(
         onPressed: _mostrarDialogo,
         child: Icon(Icons.add),
-        backgroundColor: Colors.blue, // Puedes cambiar el color del botón flotante
+        backgroundColor: Colors.blue,
       ),
     );
   }

@@ -15,8 +15,11 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Consultar Juego de Mesa'),
+        title: const Text('Introduce Partida'),
+        shadowColor: Colors.black,
+        backgroundColor: Colors.deepPurple,
       ),
+      backgroundColor: Colors.white10,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

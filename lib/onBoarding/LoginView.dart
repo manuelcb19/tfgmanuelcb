@@ -113,10 +113,10 @@ class LoginView extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Login'),
           centerTitle: true,
-          shadowColor: Colors.white,
-          backgroundColor: Colors.white,
+          shadowColor: Colors.black,
+          backgroundColor: Colors.deepPurple,
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white10,
         body:
         Center(
           child: ConstrainedBox(constraints: BoxConstraints(
@@ -139,12 +139,24 @@ class LoginView extends StatelessWidget {
                     child:  customTextField(tecUsername: usuarioPassword, oscuro: true, sHint: "introduzca su Contraseña",)
                 ),
 
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CustomButton(onPressed: onClickAceptar, texto: 'aceptar',),
-                    CustomButton(onPressed: onClickRegistrar, texto: 'registrar',),
-                    CustomButton(onPressed: signInWithGoogle, texto: 'registrar con google',),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomButton(onPressed: onClickAceptar, texto: 'aceptar',),
+                        CustomButton(onPressed: onClickRegistrar, texto: 'registrar',),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: signInWithGoogle,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: Colors.blue, // Color del texto (blanco)
+                      ),
+                      child: Text('Acceder con Google'),
+                    ),
                   ],
                 ),
 

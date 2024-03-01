@@ -209,10 +209,10 @@ class _PerfilViewState extends State<PerfilView> {
       appBar: AppBar(
         title: const Text('Perfil'),
         centerTitle: true,
-        shadowColor: Colors.orangeAccent,
-        backgroundColor: Colors.orangeAccent,
+        shadowColor: Colors.black,
+        backgroundColor: Colors.deepPurple,
       ),
-      backgroundColor: Colors.amber[200],
+      backgroundColor: Colors.white10,
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
@@ -250,7 +250,7 @@ class _PerfilViewState extends State<PerfilView> {
                     ),
                 ],
               ),
-              Row(
+              Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
@@ -261,11 +261,11 @@ class _PerfilViewState extends State<PerfilView> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-
                       _showSearchDialog(context, tecNombre);
                     },
                     child: Text('Añadir Juegos de Mesa'),
                   ),
+                  SizedBox(height: 16), // Espacio vertical
                   CustomButton(texto: "aceptar", onPressed: onClickAceptar),
                 ],
               ),

@@ -21,6 +21,7 @@ class _HomeViewState extends State<HomeView> {
   DataHolder conexion = DataHolder();
   late List<DragAndDropList> ListaJuegosdrag;
   late FbUsuario perfil;
+  late Future<void> _loadingFuture;
 
   @override
   void initState() {
@@ -29,6 +30,12 @@ class _HomeViewState extends State<HomeView> {
     ListaJuegosdrag = [];
     _initData();
     cargarDatosDesdeCache();
+    _loadingFuture = _simulateLoading();
+  }
+
+  Future<void> _simulateLoading() async {
+
+    await Future.delayed(Duration(seconds: 2));
   }
 
   Future<void> conseguirUsuario() async {
@@ -256,27 +263,41 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Juegos'),
+        title: const Text('Lista Juegos'),
+        shadowColor: Colors.black,
+        backgroundColor: Colors.deepPurple,
       ),
-      body: DragAndDropLists(
-        children: ListaJuegosdrag,
-        onItemReorder: _onItemReorder,
-        onListReorder: _onListReorder,
-        listPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        itemDivider: Divider(
-          thickness: 2,
-          height: 2,
-          color: Theme.of(context).colorScheme.background,
-        ),
-        itemDragHandle: DragHandle(
-          child: Padding(
-            padding: EdgeInsets.only(right: 10),
-            child: Icon(
-              Icons.menu,
-              color: Colors.blueGrey,
-            ),
-          ),
-        ),
+      backgroundColor: Colors.white10,
+      body: FutureBuilder(
+        future: _loadingFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            return DragAndDropLists(
+              children: ListaJuegosdrag,
+              onItemReorder: _onItemReorder,
+              onListReorder: _onListReorder,
+              listPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              itemDivider: Divider(
+                thickness: 2,
+                height: 2,
+                color: Theme.of(context).colorScheme.background,
+              ),
+              itemDragHandle: DragHandle(
+                child: Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.menu,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ),
+            );
+          }
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _agregarJuegoDialog,
@@ -289,3 +310,4 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
+

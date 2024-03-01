@@ -85,12 +85,12 @@ class RegisterView extends StatelessWidget{
 
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Perfil'),
+          title: const Text('Registrarse'),
           centerTitle: true,
-          shadowColor: Colors.orangeAccent,
-          backgroundColor: Colors.orangeAccent,
+          shadowColor: Colors.black,
+          backgroundColor: Colors.deepPurple,
         ),
-        backgroundColor: Colors.amber[200],
+        backgroundColor: Colors.white10,
         body:
         Center(
           child: ConstrainedBox(constraints: BoxConstraints(
