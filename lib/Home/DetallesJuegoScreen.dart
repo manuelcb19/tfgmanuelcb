@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
 import 'package:tfgmanuelcb/Home/PartidasScreen.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
+
+import '../CustomViews/CustomTextField.dart';
 // Asegúrate de que las rutas de importación sean correctas para tu proyecto.
 
 class DetallesJuegoScreen extends StatefulWidget {
@@ -18,6 +20,8 @@ class DetallesJuegoScreen extends StatefulWidget {
 class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   DataHolder conexion = DataHolder();
   List<Map<String, dynamic>> partidasList = [];
+  TextEditingController tecNombre = TextEditingController();
+  TextEditingController tecPuntuacion = TextEditingController();
 
   @override
   void initState() {
@@ -40,6 +44,47 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     partidasList.clear();
     partidasList = await conexion.fbadmin.descargarPartidas(widget.juego);
     setState(() {});
+  }
+
+  void _showDetailsDialog(int orden) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Detalles de la Partida'),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              customTextField(tecUsername: tecNombre, oscuro: false, sHint: "Nombre de puntuacion a cambiar",),
+              customTextField(tecUsername: tecPuntuacion, oscuro: false, sHint: "Introduzca la puntuacion nueva",),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cerrar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Obtener los valores de los campos de texto
+                String nuevoNombre = tecNombre.text;
+                int nuevaPuntuacion = int.parse(tecPuntuacion.text);
+
+                // Llamar a la función para modificar la partida
+                conexion.fbadmin.modificarPartida(widget.juego, orden, nuevoNombre, nuevaPuntuacion);
+
+                // Cerrar el cuadro de diálogo
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 
@@ -76,6 +121,9 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                 return ListTile(
                   title: Text('Partida ${index + 1}'),
                   subtitle: Text(partida.entries.map((e) => '${e.key}: ${e.value}').join(', ')),
+                  onTap: () {
+                    _showDetailsDialog(partidasList[index]['orden']);
+                  },
                 );
               },
             ),

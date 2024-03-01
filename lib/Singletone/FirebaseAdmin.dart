@@ -114,6 +114,51 @@ class FirebaseAdmin {
     return boardGame;
   }
 
+  void modificarPartida(FbBoardGame? juego, int ordenParametro, String nombre, int nuevaPuntuacion) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+
+      QuerySnapshot querySnapshot = await db
+          .collection("ColeccionJuegos")
+          .doc(userId)
+          .collection("juegos")
+          .doc(juego?.id.toString())
+          .collection("partidas")
+          .where("orden", isEqualTo: ordenParametro)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentReference partidaRef = querySnapshot.docs.first.reference;
+
+        DocumentSnapshot partidaSnapshot = await partidaRef.get();
+        if (partidaSnapshot.exists) {
+
+          Map<String, dynamic> partidasMap = (partidaSnapshot.data() as Map<String, dynamic>?)?["partidas"] ?? {};
+
+          print("Datos actuales antes de la actualización: $partidasMap");
+
+          if (partidasMap.containsKey(nombre)) {
+
+            partidasMap[nombre] = nuevaPuntuacion;
+
+            await partidaRef.update({"partidas": partidasMap});
+
+            print("Puntuación actualizada con éxito");
+            print("Datos actualizados: $partidasMap");
+          } else {
+            print("El nombre '$nombre' no existe en el mapa 'partidas'");
+          }
+        }
+      } else {
+        print("No se encontraron documentos con el parámetro 'orden' dado");
+      }
+    } catch (e) {
+      print("Error al modificar la partida: $e");
+    }
+  }
+
   Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> partidasList = [];
