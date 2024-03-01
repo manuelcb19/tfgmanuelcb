@@ -29,20 +29,3 @@ class FbPartidas {
     }
   }
 }
-
-class TuClaseDondeQuieresMostrar {
-  void mostrarPartidas() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    QuerySnapshot<Map<String, dynamic>> partidasSnapshot = await db
-        .collection("partida")
-        .get();
-
-    List<FbPartidas> partidasList = partidasSnapshot.docs.map((partidaDoc) {
-      return FbPartidas.fromFirestore(partidaDoc);
-    }).toList();
-
-    for (var partida in partidasList) {
-      print("Nombre: ${partida.nombre}, Puntuación: ${partida.puntuacion}, Orden: ${partida.orden}");
-    }
-  }
-}

@@ -46,7 +46,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     setState(() {});
   }
 
-  void _showDetailsDialog(int orden) {
+  void _showDetailsDialog(int orden, VoidCallback callback) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -69,15 +69,13 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
             ),
             TextButton(
               onPressed: () {
-                // Obtener los valores de los campos de texto
+
                 String nuevoNombre = tecNombre.text;
                 int nuevaPuntuacion = int.parse(tecPuntuacion.text);
 
-                // Llamar a la función para modificar la partida
                 conexion.fbadmin.modificarPartida(widget.juego, orden, nuevoNombre, nuevaPuntuacion);
-
-                // Cerrar el cuadro de diálogo
                 Navigator.of(context).pop();
+                callback();
               },
               child: Text('Aceptar'),
             ),
@@ -122,7 +120,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                   title: Text('Partida ${index + 1}'),
                   subtitle: Text(partida.entries.map((e) => '${e.key}: ${e.value}').join(', ')),
                   onTap: () {
-                    _showDetailsDialog(partidasList[index]['orden']);
+                    _showDetailsDialog(partidasList[index]['orden'], descargarPartidas);
                   },
                 );
               },

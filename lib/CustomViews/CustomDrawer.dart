@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 
 class CustomDrawer extends StatelessWidget {
 
@@ -28,7 +29,7 @@ class CustomDrawer extends StatelessWidget {
                   height: 100,
                 ),
                 Text(
-                  "Drawer Examen",
+                  "Bienvenido",
                   style: TextStyle(color: Colors.white,
                       fontSize: 20),
                 ),
@@ -38,7 +39,7 @@ class CustomDrawer extends StatelessWidget {
           ListTile(
             selectedColor: Colors.blue,
             selected: true,
-            title: const Text('Perfil'),
+            title: const Text('Memory'),
             onTap: () {
               onItemTap!(1);
             },

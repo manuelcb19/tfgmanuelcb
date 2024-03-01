@@ -99,6 +99,18 @@ class FirebaseAdmin {
         .collection("juegos")
         .doc(juegoId)
         .delete();
+    await FirebaseFirestore.instance
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juegoId)
+        .collection("partidas")
+        .get()
+        .then((querySnapshot) {
+          querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
   }
 
   Future<BoardGame?> buscarJuegoMesa(String idJuego, String nombre) async {
