@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../CustomViews/CustomButton.dart';
 import '../CustomViews/CustomDialog.dart';
@@ -60,6 +61,49 @@ class LoginView extends StatelessWidget {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+
+    if (FirebaseAuth.instance.currentUser != null) {
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+      return;
+    }
+
+
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    try {
+
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      print(userCredential.user?.displayName);
+
+
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+
+    } on FirebaseAuthException catch (e) {
+
+      print("Error de autenticación: ${e.message}");
+      CustomDialog.show(_context, "Error de autenticación con Google");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _context = context;
@@ -100,6 +144,7 @@ class LoginView extends StatelessWidget {
                   children: [
                     CustomButton(onPressed: onClickAceptar, texto: 'aceptar',),
                     CustomButton(onPressed: onClickRegistrar, texto: 'registrar',),
+                    CustomButton(onPressed: signInWithGoogle, texto: 'registrar con google',),
                   ],
                 ),
 

@@ -50,10 +50,17 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _initData() async {
-    List<FbBoardGame> downloadedGames = await conexion.loadAllFbJuegos();
-    if(downloadedGames.isEmpty)
+    List<FbBoardGame> downloadedGamesCache = await conexion.loadAllFbJuegos();
+    List<FbBoardGame> dowloadByFirebase = await conexion.fbadmin.descargarJuegos();
+    List<FbBoardGame> downloadedGames;
+    if(downloadedGamesCache.length == dowloadByFirebase.length)
       {
-    downloadedGames = await conexion.fbadmin.descargarJuegos();
+        downloadedGames = await conexion.loadAllFbJuegos();
+      }
+
+    else
+      {
+        downloadedGames = await conexion.fbadmin.descargarJuegos();
       }
     int compararPorOrden(FbBoardGame a, FbBoardGame b) {
       int ordenA = a.orden ?? 0;

@@ -70,6 +70,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '182065126076',
     projectId: 'tfgmanuelcb',
     storageBucket: 'tfgmanuelcb.appspot.com',
+    iosClientId: '182065126076-145b1s543mcdesdnh3s1u9dctbhkk66k.apps.googleusercontent.com',
     iosBundleId: 'com.example.tfgmanuelcb',
   );
 }

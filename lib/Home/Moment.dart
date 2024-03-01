@@ -92,7 +92,7 @@ class _MomentViewState extends State<Moment> {
 
   Future<void> descargarMemories() async {
     try {
-      List<FbImagen> imagenesDescargadas = await conexion.fbadmin.descargarMemories(userId);
+      List<FbImagen> imagenesDescargadas = (await conexion.fbadmin.descargarMemories(userId)).cast<FbImagen>();
       setState(() {
         imagenes = imagenesDescargadas;
       });
