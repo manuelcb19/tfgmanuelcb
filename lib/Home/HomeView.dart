@@ -20,7 +20,7 @@ class _HomeViewState extends State<HomeView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   DataHolder conexion = DataHolder();
   late List<DragAndDropList> ListaJuegosdrag;
-  late FbUsuario perfil;
+  FbUsuario perfil = FbUsuario(nombre: "nombre", apellidos: "apellidos", id: "id", shint: "shint");
   late Future<void> _loadingFuture;
 
   @override
@@ -39,15 +39,19 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> conseguirUsuario() async {
-    FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
-    setState(() {
+    //FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
+    print("FFFFFFFFFFFFFFFFFFFFFFFF"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
+    setState(() async {
+      FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
+      print("ffffffffffffffffffffffffff"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
       this.perfil = perfil;
     });
+    print("ffffffffffffffffffffffffff"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
   }
 
   Future<void> cargarDatosDesdeCache() async {
     List<FbBoardGame> cachedGames = await conexion.loadAllFbJuegos();
-
+    print(perfil.shint.toString());
     if (cachedGames.isNotEmpty) {
       print("Juegos en el caché:");
       for (var juego in cachedGames) {
@@ -303,6 +307,7 @@ class _HomeViewState extends State<HomeView> {
         onPressed: _agregarJuegoDialog,
         child: Icon(Icons.add),
       ),
+
       drawer: CustomDrawer(
         onItemTap: fHomeViewDrawerOnTap,
         imagen: perfil.shint,
