@@ -159,7 +159,7 @@ class _MomentViewState extends State<Moment> {
                 sHint: "Título del momento",
               ),
               ElevatedButton(
-                onPressed: () => onGalleryClicked(),
+                onPressed: () => onCameraClicked(),
                 child: Text("Desde galería"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
@@ -177,8 +177,13 @@ class _MomentViewState extends State<Moment> {
                   print(_imagePreview.toString() + "Esta es la imagen");
                   String imageUrl = await setearUrlImagen();
                   print(imageUrl.toString());
-                  await addMemory(titulo, imageUrl);
-                  setState(() {});
+
+                  await Future.delayed(Duration(seconds: 2), () {
+                    addMemory(titulo, imageUrl);
+                    descargarMemories();
+                    setState(() {});
+                  });
+
                 } else {
                   print("Seleccione una imagen y un título antes de subir el post.");
                 }
