@@ -1,12 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tfgmanuelcb/FirebaseObjects/FbBoardGame.dart';
-import 'package:tfgmanuelcb/Home/PartidasScreen.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 
 import '../CustomViews/CustomTextField.dart';
-// Asegúrate de que las rutas de importación sean correctas para tu proyecto.
+
 
 class DetallesJuegoScreen extends StatefulWidget {
 
@@ -28,16 +26,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   void initState() {
     super.initState();
     juego = conexion.juego;
-    cargarJuego();
-
-  }
-
-  Future<void> cargarJuego() async {
-    await conexion.fbadmin.descargarPartidas(conexion.juego).then((partidas) {
-      setState(() {
-        partidasList = partidas;
-      });
-    });
+    descargarPartidas();
   }
 
   void descargarPartidas() async {
@@ -70,13 +59,14 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
             ),
             TextButton(
               onPressed: () {
-
                 String nuevoNombre = tecNombre.text;
                 int nuevaPuntuacion = int.parse(tecPuntuacion.text);
-
                 conexion.fbadmin.modificarPartida(juego, orden, nuevoNombre, nuevaPuntuacion);
-                Navigator.of(context).pop();
-                callback();
+                Future.delayed(Duration(seconds: 2), () {
+                  descargarPartidas();
+                  Navigator.of(context).pop();
+                  callback();
+                });
               },
               child: Text('Aceptar'),
             ),
@@ -129,15 +119,16 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/partidasscreen', arguments: {}).then((_) {
-            // Esta parte se ejecutará cuando regreses de PartidasScreen
-            descargarPartidas();
-          });
-        },
-        child: Icon(Icons.arrow_forward),
-      ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.pushNamed(context, '/partidasscreen', arguments: {}).then((_) {
+              Future.delayed(Duration(seconds: 2), () {
+                descargarPartidas();
+              });
+            });
+          },
+          child: Icon(Icons.arrow_forward),
+        ),
     );
   }
 }

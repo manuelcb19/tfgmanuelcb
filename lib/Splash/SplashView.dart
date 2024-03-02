@@ -56,23 +56,26 @@ class _SplashViewState extends State<SplashView>{
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          left: DataHolder().platformAdmin.getScreenWidth() * 0.1,
-          top: DataHolder().platformAdmin.getScreenHeight() * 0.1,
-          width: DataHolder().platformAdmin.getScreenWidth() * 0.8,
-          height: DataHolder().platformAdmin.getScreenHeight() * 0.8,
-          child: Image.asset("resources/imagenInicial.png"),
-        ),
-        Positioned(
-          left: DataHolder().platformAdmin.getScreenWidth() * 0.25,
-          top: DataHolder().platformAdmin.getScreenHeight() * 0.6,
-          width: DataHolder().platformAdmin.getScreenWidth() * 0.5,
-          height: DataHolder().platformAdmin.getScreenHeight() * 0.2,
-          child: CircularProgressIndicator(),
-        ),
-      ],
+    return Scaffold(
+      backgroundColor: Colors.white, // Establece el color de fondo blanco
+      body: Stack(
+        children: [
+          Positioned(
+            left: DataHolder().platformAdmin.getScreenWidth() * 0.1,
+            top: DataHolder().platformAdmin.getScreenHeight() * 0.1,
+            width: DataHolder().platformAdmin.getScreenWidth() * 0.8,
+            height: DataHolder().platformAdmin.getScreenHeight() * 0.8,
+            child: Image.asset("resources/imagenInicial.png"),
+          ),
+          Positioned(
+            left: DataHolder().platformAdmin.getScreenWidth() * 0.25,
+            top: DataHolder().platformAdmin.getScreenHeight() * 0.6,
+            width: DataHolder().platformAdmin.getScreenWidth() * 0.5,
+            height: DataHolder().platformAdmin.getScreenHeight() * 0.2,
+            child: CircularProgressIndicator(),
+          ),
+        ],
+      ),
     );
   }
 }

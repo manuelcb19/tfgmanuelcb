@@ -51,7 +51,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
               ElevatedButton(
                 onPressed: () {
                   _agregarPartidasFirestore();
-                  Navigator.of(context).pop(); // Cerrar el AlertDialog
+                  Navigator.of(context).pop();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
@@ -165,6 +165,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
         });
 
         print("Partida agregada a Firestore con orden $nuevoOrden");
+
       } catch (error) {
         print("Error al agregar la partida a Firestore: $error");
       }
