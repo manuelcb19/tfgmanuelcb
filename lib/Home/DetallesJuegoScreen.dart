@@ -82,6 +82,14 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tus partidas'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.bar_chart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/estadisticas');
+            },
+          ),
+        ],
         shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),

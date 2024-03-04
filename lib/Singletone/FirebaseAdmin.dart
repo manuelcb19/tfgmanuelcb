@@ -194,6 +194,7 @@ class FirebaseAdmin {
   }
 
 
+
   Future<FbUsuario> conseguirUsuario() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     print(uid);

@@ -27,18 +27,15 @@ class MapaViewState extends State<MapaView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: _kMadrid,
-        onMapCreated: (GoogleMapController controller) {
-          _controller = controller;
-        },
-        markers: marcadores,
-        gestureRecognizers: Set()
-          ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
-          ..add(Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()))
-          ..add(Factory<TapGestureRecognizer>(() => TapGestureRecognizer()))
-          ..add(Factory<VerticalDragGestureRecognizer>(
-                  () => VerticalDragGestureRecognizer())),
+          mapType: MapType.normal,
+          initialCameraPosition: _kMadrid,
+          onMapCreated: (GoogleMapController controller) {
+            _controller = controller;
+          },
+          markers: marcadores,
+          gestureRecognizers: Set()
+            ..add(Factory<PanGestureRecognizer>(() => PanGestureRecognizer()))
+        // ... (otros gestos)
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: tienda,
@@ -60,6 +57,7 @@ class MapaViewState extends State<MapaView> {
     Marker marcador = Marker(
       markerId: MarkerId('1'),
       position: LatLng(40.4709546, -3.4700426),
+      icon: BitmapDescriptor.defaultMarker, // Usa el icono rojo por defecto
     );
 
     setState(() {
