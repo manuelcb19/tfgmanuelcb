@@ -57,6 +57,13 @@ class CustomDrawer extends StatelessWidget {
             },
 
           ),
+          ListTile(
+            title: const Text('Consultar Tienda mas Cercana'),
+            onTap: () {
+              onItemTap!(3);
+            },
+
+          ),
         ],
       ),
     );

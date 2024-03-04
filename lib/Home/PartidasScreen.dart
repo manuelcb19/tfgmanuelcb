@@ -6,21 +6,18 @@ import '../Singletone/DataHolder.dart';
 import 'DetallesJuegoScreen.dart';
 
 class PartidasScreen extends StatefulWidget {
-
   String idJuego = DataHolder().juego.id.toString();
-
 
   @override
   _PartidasScreenState createState() => _PartidasScreenState();
 }
 
 class _PartidasScreenState extends State<PartidasScreen> {
-
   FirebaseFirestore db = FirebaseFirestore.instance;
   List<Map<String, dynamic>> partidasTemp = [];
   DataHolder conexion = DataHolder();
   String nombre = '';
-
+  bool loading = false;
 
   Future<void> cargarJuego() async {
     await Future.delayed(Duration(seconds: 2));
@@ -51,29 +48,40 @@ class _PartidasScreenState extends State<PartidasScreen> {
               ElevatedButton(
                 onPressed: () {
                   _agregarPartidasFirestore();
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
-                  );
+                  setState(() {
+                    loading = true;
+                  });
+                  Future.delayed(Duration(seconds: 2), () {
+                    setState(() {
+                      loading = false;
+                    });
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
+                    );
+                  });
                 },
                 child: Text('Agregar Partida al Juego'),
               ),
             ],
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: partidasTemp.length,
-              itemBuilder: (context, index) {
-                String nombre = partidasTemp[index]["nombre"];
-                int puntuacion = partidasTemp[index]["puntuacion"];
-                return ListTile(
-                  title: Text(nombre),
-                  subtitle: Text('Puntuación: $puntuacion'),
-                );
-              },
+          if (loading)
+            CircularProgressIndicator()
+          else
+            Expanded(
+              child: ListView.builder(
+                itemCount: partidasTemp.length,
+                itemBuilder: (context, index) {
+                  String nombre = partidasTemp[index]["nombre"];
+                  int puntuacion = partidasTemp[index]["puntuacion"];
+                  return ListTile(
+                    title: Text(nombre),
+                    subtitle: Text('Puntuación: $puntuacion'),
+                  );
+                },
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -83,7 +91,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
     showDialog(
       context: context,
       builder: (context) {
-
         int puntuacion = 0;
 
         return AlertDialog(
@@ -115,13 +122,13 @@ class _PartidasScreenState extends State<PartidasScreen> {
             ),
             TextButton(
               onPressed: () async {
-                  setState(() {
-                    partidasTemp.add({
-                      "nombre": nombre,
-                      "puntuacion": puntuacion,
-                    });
+                setState(() {
+                  partidasTemp.add({
+                    "nombre": nombre,
+                    "puntuacion": puntuacion,
                   });
-                  Navigator.of(context).pop();
+                });
+                Navigator.of(context).pop();
               },
               child: Text('Agregar a lista temporal'),
             ),
@@ -135,7 +142,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
     if (partidasTemp.isNotEmpty) {
       String uid = FirebaseAuth.instance.currentUser!.uid;
       try {
-
         DocumentReference<Map<String, dynamic>> juegoRef = db
             .collection("ColeccionJuegos")
             .doc(uid)
@@ -156,7 +162,8 @@ class _PartidasScreenState extends State<PartidasScreen> {
 
         await partidasRef.add({
           "partidas": Map.fromEntries(partidasTemp.map((e) =>
-              MapEntry<String, dynamic>(e['nombre'] as String, e['puntuacion']))),
+              MapEntry<String, dynamic>(
+                  e['nombre'] as String, e['puntuacion']))),
           "orden": nuevoOrden,
         });
 
@@ -165,7 +172,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
         });
 
         print("Partida agregada a Firestore con orden $nuevoOrden");
-
       } catch (error) {
         print("Error al agregar la partida a Firestore: $error");
       }

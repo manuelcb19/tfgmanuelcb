@@ -12,6 +12,7 @@ import 'package:tfgmanuelcb/Splash/SplashViewWeb.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
 
+import 'Home/MapaView.dart';
 import 'Splash/SplashView.dart';
 import 'onBoarding/LoginView.dart';
 import 'onBoarding/LoginViewWeb.dart';
@@ -36,6 +37,7 @@ class TfgManuelCB extends StatelessWidget{
           '/splashviewweb':(context) => SplashViewWeb(),
           '/moment':(context) => Moment(),
           '/partidasscreen':(context) => PartidasScreen(),
+          '/mapaview':(context) => MapaView(),
         },
         initialRoute: '/splashviewweb',
       );
@@ -52,6 +54,7 @@ class TfgManuelCB extends StatelessWidget{
           '/splashview':(context) => SplashView(),
           '/moment':(context) => Moment(),
           '/partidasscreen':(context) => PartidasScreen(),
+          '/mapaview':(context) => MapaView(),
         },
         initialRoute: '/splashview',
         debugShowCheckedModeBanner: false,

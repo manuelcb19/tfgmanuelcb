@@ -182,6 +182,9 @@ class _HomeViewState extends State<HomeView> {
     } else if (indice == 2) {
       Navigator.of(context).pushNamed('/consultarjuegomesa', arguments: {},);
     }
+       else if (indice == 3) {
+         Navigator.of(context).pushNamed('/mapaview', arguments: {},);
+      }
   }
 
   Future<void> _agregarJuegoDialog() async {
