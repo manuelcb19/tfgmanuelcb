@@ -11,7 +11,6 @@ class HttpAdmin {
       var searchBoardGamesResult = await bgg.searchBoardGames(nombreJuego);
 
       if (searchBoardGamesResult != null && searchBoardGamesResult.isNotEmpty) {
-        // Utilizamos un Map para almacenar el ID como clave y el nombre como valor
         Map<int, String> diccionarioIds = {};
 
         for (var boardGame in searchBoardGamesResult) {

@@ -24,6 +24,29 @@ class FirebaseAdmin {
     }
   }
 
+  Future<void> agregarAnimeAlUsuario(String idJuego, String nombre) async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;//uid del usuario
+
+      var bgg = Bgg();//
+      var boardGame = await bgg.getBoardGame(int.parse(idJuego));
+      //crear una clase o algo para añadir a la base de datos
+
+      await db.collection("coleccionAnime")
+          .doc(userId)
+          .collection("anime")
+          .doc(idJuego)
+          .set({
+        "titulo": nombre,
+        "fecha": boardGame?.yearPublished,
+        "image": boardGame?.image.toString(),
+        "id": boardGame?.id
+      });
+
+    } catch (e) {
+      print("Error al agregar juego de mesa al usuario: $e");
+    }
+  }
 
 
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
