@@ -188,77 +188,83 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _agregarJuegoDialog() async {
-    String? selectedIdFromList = await showDialog<String>(context: context, builder: (BuildContext context) {
-      String nombreJuegoBuscado = '';
+    String? selectedIdFromList = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        String nombreJuegoBuscado = '';
 
-      return AlertDialog(
-        title: Text('Buscar y Seleccionar Juego'),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: TextEditingController(text: nombreJuegoBuscado),
-              onChanged: (value) {
-                nombreJuegoBuscado = value;
+        return AlertDialog(
+          title: Text('Buscar y Seleccionar Juego'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: TextEditingController(text: nombreJuegoBuscado),
+                  onChanged: (value) {
+                    nombreJuegoBuscado = value;
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Ingrese el nombre del juego',
+                    contentPadding: EdgeInsets.all(16.0),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Map<int, String> diccionario =
+                await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuegoBuscado);
+
+                String? selectedIdFromList = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('Lista de IDs'),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (int id in diccionario.keys)
+                              ListTile(
+                                title: Text(diccionario[id]!),
+                                onTap: () async {
+                                  await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(
+                                      id.toString(), diccionario[id]!);
+                                  Navigator.of(context).pop(id.toString());
+                                  conexion.fbadmin.descargarJuegos();
+                                  _initData();
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          child: Text('Aceptar'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
+                  print("ID seleccionada: $selectedIdFromList");
+                  Navigator.of(context).pop(selectedIdFromList);
+                } else {}
               },
-              decoration: InputDecoration(
-                hintText: 'Ingrese el nombre del juego',
-                contentPadding: EdgeInsets.all(16.0),
-              ),
+              child: Text('Aceptar'),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuegoBuscado);
-
-              String? selectedIdFromList = await showDialog<String>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text('Lista de IDs'),
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (int id in diccionario.keys)
-                          ListTile(
-                            title: Text(diccionario[id]!),
-                            onTap: () async {
-                              await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
-                              Navigator.of(context).pop(id.toString());
-                              conexion.fbadmin.descargarJuegos();
-                              _initData();
-                            },
-                          ),
-                      ],
-                    ),
-                    actions: [
-                      TextButton(
-                        child: Text('Aceptar'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
-                print("ID seleccionada: $selectedIdFromList");
-                Navigator.of(context).pop(selectedIdFromList);
-              } else {
-
-              }
-            },
-            child: Text('Aceptar'),
-          ),
-        ],
-      );
-    },
+        );
+      },
     );
 
     if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
