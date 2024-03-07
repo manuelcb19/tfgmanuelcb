@@ -24,31 +24,6 @@ class FirebaseAdmin {
     }
   }
 
-  Future<void> agregarAnimeAlUsuario(String idJuego, String nombre) async {
-    try {
-      String userId = FirebaseAuth.instance.currentUser!.uid;//uid del usuario
-
-      var bgg = Bgg();//
-      var boardGame = await bgg.getBoardGame(int.parse(idJuego));
-      //crear una clase o algo para añadir a la base de datos
-
-      await db.collection("coleccionAnime")
-          .doc(userId)
-          .collection("anime")
-          .doc(idJuego)
-          .set({
-        "titulo": nombre,
-        "fecha": boardGame?.yearPublished,
-        "image": boardGame?.image.toString(),
-        "id": boardGame?.id
-      });
-
-    } catch (e) {
-      print("Error al agregar juego de mesa al usuario: $e");
-    }
-  }
-
-
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -109,6 +84,31 @@ class FirebaseAdmin {
     }
 
     return imagenes;
+  }
+
+  Future<void> eliminarJuego2(String juegoId) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    String userId = uid;
+
+    await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juegoId).get();
+
+    await FirebaseFirestore.instance
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .doc(juegoId)
+        .collection("partidas")
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
   }
 
   Future<void> eliminarJuego(String juegoId) async {
