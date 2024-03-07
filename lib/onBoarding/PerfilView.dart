@@ -213,7 +213,7 @@ class _PerfilViewState extends State<PerfilView> {
         backgroundColor: Colors.deepPurple,
       ),
       backgroundColor: Colors.white,
-      body: Center(
+      body: SingleChildScrollView(
         child: ConstrainedBox(
           constraints: BoxConstraints(
             minWidth: 500,

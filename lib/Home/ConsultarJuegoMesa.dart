@@ -36,10 +36,11 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
 
                       return AlertDialog(
                         title: Text('Lista de IDs'),
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                        content: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
                             for (int id in diccionario.keys)
                               ListTile(
                                 title: Text(diccionario[id]!),
@@ -49,6 +50,7 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
                                 },
                               ),
                           ],
+                        ),
                         ),
                         actions: [
                           TextButton(
