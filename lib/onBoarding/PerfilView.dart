@@ -25,13 +25,16 @@ class _PerfilViewState extends State<PerfilView> {
   DataHolder conexion = DataHolder();
   String imagenPredefinida = "resources/imagenpredefinida.png";
   bool mostrarPredefinida = true;
+  List<BoardGame> listaJuegos = [];
+  int idJuego = 0;
 
   void onClickAceptar() async {
     setState(() {
       mostrarPredefinida = false;
     });
 
-    conexion.fbadmin.anadirUsuario(tecNombre.text, tecApellidos.text, _selectedImageUrl);
+    conexion.fbadmin.anadirUsuario(
+        tecNombre.text, tecApellidos.text, _selectedImageUrl);
     Navigator.of(_context).popAndPushNamed("/homeview");
   }
 
@@ -99,7 +102,8 @@ class _PerfilViewState extends State<PerfilView> {
     }
   }
 
-  Future<List<Map<String, dynamic>>> descargarPartidas(FbBoardGame? juego) async {
+  Future<List<Map<String, dynamic>>> descargarPartidas(
+      FbBoardGame? juego) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> partidasList = [];
     String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -121,8 +125,8 @@ class _PerfilViewState extends State<PerfilView> {
     return partidasList;
   }
 
-  Future<String?> _showSearchDialog(BuildContext context, TextEditingController searchController,)
-  async {
+  Future<String?> _showSearchDialog(BuildContext context,
+      TextEditingController searchController,) async {
     TextEditingController _searchController = TextEditingController();
 
     return showDialog<String>(
@@ -149,7 +153,8 @@ class _PerfilViewState extends State<PerfilView> {
               onPressed: () async {
                 String nombreJuego = _searchController.text.trim();
 
-                Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
+                Map<int, String> diccionario = await conexion.httpAdmin
+                    .obtenerDiccionarioDeIds(nombreJuego);
 
                 // Muestra una lista de IDs y permite al usuario seleccionar uno
                 String? selectedIdFromList = await showDialog<String>(
@@ -165,7 +170,13 @@ class _PerfilViewState extends State<PerfilView> {
                             ListTile(
                               title: Text(diccionario[id]!),
                               onTap: () async {
-                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(),diccionario[id]!);
+                                BoardGame? juego = await conexion.fbadmin.ConsultarJuego(id.toString());
+                                if (juego != null) {
+                                  setState(() {
+                                    listaJuegos.add(juego);
+                                  });
+                                }
+                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
                                 Navigator.of(context).pop(id.toString());
                               },
                             ),
@@ -182,7 +193,8 @@ class _PerfilViewState extends State<PerfilView> {
                     );
                   },
                 );
-                if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
+                if (selectedIdFromList != null &&
+                    selectedIdFromList.isNotEmpty) {
                   print("ID seleccionada: $selectedIdFromList");
                   Navigator.of(context).pop(selectedIdFromList);
                 } else {
@@ -268,6 +280,26 @@ class _PerfilViewState extends State<PerfilView> {
                   SizedBox(height: 16), // Espacio vertical
                   CustomButton(texto: "aceptar", onPressed: onClickAceptar),
                 ],
+              ),
+              SizedBox(height: 20), // Espacio vertical
+              // Aquí utilizamos un ListView con scroll horizontal
+              Container(
+                height: 100, // Ajusta la altura según sea necesario
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    for (BoardGame elemento in listaJuegos)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: 150, // Ajusta el ancho según sea necesario
+                          color: Colors.grey[300],
+                          alignment: Alignment.center,
+                          child: Text(elemento.name ?? ""),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),

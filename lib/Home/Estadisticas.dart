@@ -12,7 +12,7 @@ class _EstadisticasViewState extends State<Estadisticas> {
   List<Map<String, dynamic>> partidasList = [];
   late FbBoardGame juego;
 
-  int sumaValores = 1;
+  int sumaValores = 0;
   int contadorPartidas = 0;
   int numeroMasGrande = 0;
   String nombreGanador = "";
@@ -59,9 +59,6 @@ class _EstadisticasViewState extends State<Estadisticas> {
       }
     }
 
-    print('Suma de valores: $sumaValores');
-    print('Número total de partidas: $contadorPartidas');
-    print('Número más grande: $numeroMasGrande');
     setState(() {});
   }
 
@@ -77,11 +74,61 @@ class _EstadisticasViewState extends State<Estadisticas> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Suma de Puntoos: $sumaValores'),
-            Text("Número total de partidas:" + partidasList.length.toString()),
-            Text('Media de Puntuacion: ${contadorPartidas > 0 ? sumaValores / contadorPartidas : 0}'),
-            Text('Puntuacion más grande: $numeroMasGrande'),
-            Text('Nombre de la Persona que mas ha ganado: $nombreGanador'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.summarize),
+                  SizedBox(width: 8.0),
+                  Text('Suma de Puntos de todos los juegos: $sumaValores'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.list),
+                  SizedBox(width: 8.0),
+                  Text('Número total de partidas: ${partidasList.length}'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.calculate),
+                  SizedBox(width: 8.0),
+                  Text('Media de Puntuación: ${contadorPartidas > 0 ? sumaValores / contadorPartidas : 0}'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.star),
+                  SizedBox(width: 8.0),
+                  Text('Puntuación más Alta: $numeroMasGrande'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.person),
+                  SizedBox(width: 8.0),
+                  Text('Nombre de la persona que más Juegos ha ganado: $nombreGanador'),
+                ],
+              ),
+            ),
           ],
         ),
       ),

@@ -24,6 +24,14 @@ class FirebaseAdmin {
     }
   }
 
+  Future<BoardGame?> ConsultarJuego(String idJuego)
+  async {
+    var bgg = Bgg();
+    var boardGame = await bgg.getBoardGame(int.parse(idJuego));
+
+    return boardGame;
+  }
+
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;

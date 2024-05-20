@@ -9,6 +9,8 @@ import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 import 'package:tfgmanuelcb/onBoarding/LoginView.dart';
 import 'package:drag_and_drop_lists/drag_and_drop_lists.dart';
 
+import '../CustomViews/CustomMenuBar.dart';
+
 class HomeView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -22,6 +24,8 @@ class _HomeViewState extends State<HomeView> {
   late List<DragAndDropList> ListaJuegosdrag;
   FbUsuario perfil = FbUsuario(nombre: "nombre", apellidos: "apellidos", id: "id", shint: "shint");
   late Future<void> _loadingFuture;
+  bool mostrarBorrar = false;
+  bool mostrarDesplazar = false;
 
   @override
   void initState() {
@@ -64,20 +68,19 @@ class _HomeViewState extends State<HomeView> {
     List<FbBoardGame> downloadedGamesCache = await conexion.loadAllFbJuegos();
     List<FbBoardGame> dowloadByFirebase = await conexion.fbadmin.descargarJuegos();
     List<FbBoardGame> downloadedGames;
-    if(downloadedGamesCache.length == dowloadByFirebase.length)
-      {
-        downloadedGames = await conexion.loadAllFbJuegos();
-      }
 
-    else
-      {
-        downloadedGames = await conexion.fbadmin.descargarJuegos();
-      }
+    if(downloadedGamesCache.length == dowloadByFirebase.length) {
+      downloadedGames = await conexion.loadAllFbJuegos();
+    } else {
+      downloadedGames = await conexion.fbadmin.descargarJuegos();
+    }
+
     int compararPorOrden(FbBoardGame a, FbBoardGame b) {
       int ordenA = a.orden ?? 0;
       int ordenB = b.orden ?? 0;
       return ordenA.compareTo(ordenB);
     }
+
     downloadedGames.sort(compararPorOrden);
 
     List<DragAndDropList> lists = [
@@ -98,39 +101,14 @@ class _HomeViewState extends State<HomeView> {
                         : Container(),
                     title: Text(juego.nombre),
                     subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
-                    trailing: IconButton(
+                    trailing: mostrarBorrar
+                        ? IconButton(
                       icon: Icon(Icons.delete),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Eliminar juego'),
-                              content: Text('¿Estás seguro de que quieres borrar este juego?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('Cancelar'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // Borrar el juego y actualizar la lista
-                                    setState(() {
-                                      conexion.fbadmin.eliminarJuego(juego.id.toString());
-                                      _initData();
-                                    });
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: Text('Aceptar'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                        _borrarJuego(juego);
                       },
-                    ),
+                    )
+                        : null,
                     onTap: () {
                       conexion.juego = juego;
                       Navigator.pushNamed(context, '/detallesjuegoscreen', arguments: {});
@@ -143,7 +121,9 @@ class _HomeViewState extends State<HomeView> {
         }).toList(),
       ),
     ];
+
     conexion.saveAllJuegosInCache(downloadedGames);
+
     setState(() {
       ListaJuegosdrag = lists;
     });
@@ -164,6 +144,32 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  void fHomeViewMenuBar(int indice) {
+    setState(() {
+      if (indice == 1) {
+        mostrarBorrar = false;
+        if(mostrarDesplazar)
+        {
+          mostrarDesplazar = false;
+        }
+        else
+        {
+          mostrarDesplazar = true;
+        }
+      } else if (indice == 2) {
+        if(mostrarBorrar)
+          {
+            mostrarBorrar = false;
+          }
+        else
+          {
+            mostrarBorrar = true;
+          }
+        mostrarDesplazar = false;
+      }
+    });
+    _initData();
+  }
   void fHomeViewDrawerOnTap(int indice) async {
     print("---->>>> " + indice.toString());
 
@@ -186,6 +192,36 @@ class _HomeViewState extends State<HomeView> {
          Navigator.of(context).pushNamed('/mapaview', arguments: {},);
       }
   }
+  void _borrarJuego(FbBoardGame juego) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Eliminar juego'),
+          content: Text('¿Estás seguro de que quieres borrar este juego?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  conexion.fbadmin.eliminarJuego(juego.id.toString());
+                  _initData();
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Future<void> _agregarJuegoDialog() async {
     String? selectedIdFromList = await showDialog<String>(
@@ -279,6 +315,11 @@ class _HomeViewState extends State<HomeView> {
         title: const Text('Lista Juegos'),
         shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
+        actions: [ // Agregado para incluir CustomMenuBar en la AppBar
+          CustomMenuBar(
+            onItemTap: fHomeViewMenuBar,
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder(
@@ -299,7 +340,8 @@ class _HomeViewState extends State<HomeView> {
                 height: 2,
                 color: Theme.of(context).colorScheme.background,
               ),
-              itemDragHandle: DragHandle(
+              itemDragHandle: mostrarDesplazar
+                  ? DragHandle(
                 child: Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
@@ -307,7 +349,8 @@ class _HomeViewState extends State<HomeView> {
                     color: Colors.blueGrey,
                   ),
                 ),
-              ),
+              )
+                  : null, // Eliminé la coma aquí
             );
           }
         },
@@ -316,7 +359,6 @@ class _HomeViewState extends State<HomeView> {
         onPressed: _agregarJuegoDialog,
         child: Icon(Icons.add),
       ),
-
       drawer: CustomDrawer(
         onItemTap: fHomeViewDrawerOnTap,
         imagen: perfil.shint,
