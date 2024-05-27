@@ -115,16 +115,29 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
               itemCount: partidasList.length,
               itemBuilder: (context, index) {
                 Map<String, dynamic> partida = partidasList[index];
-                return ListTile(
-                  title: Text('Partida ${index + 1}'),
-                  subtitle: Text(partida.entries.map((e) => '${e.key}: ${e.value}').join(', ')),
-                  onTap: () {
-                    _showDetailsDialog(partidasList[index]['orden'], descargarPartidas);
-                  },
+                Map<String, dynamic> partidas = partida['partidas'];
+                return Card(
+                  elevation: 4,
+                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    title: Text('Partida ${index + 1}', style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 8), // Espacio entre el título de la partida y los detalles de los jugadores
+                        ...partidas.entries.map((e) {
+                          return Text('- ${e.key}: ${e.value}');
+                        }).toList(),
+                      ],
+                    ),
+                    onTap: () {
+                      _showDetailsDialog(partidasList[index]['orden'], descargarPartidas);
+                    },
+                  ),
                 );
               },
             ),
-          ),
+          )
         ],
       ),
         floatingActionButton: FloatingActionButton(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../Singletone/DataHolder.dart';
 import 'DetallesJuegoScreen.dart';
 
+
 class PartidasScreen extends StatefulWidget {
   String idJuego = DataHolder().juego.id.toString();
 
@@ -25,6 +26,12 @@ class _PartidasScreenState extends State<PartidasScreen> {
     setState(() {
       nombre = conexion.juego.id.toString();
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    cargarJuego();
   }
 
   @override
@@ -58,7 +65,8 @@ class _PartidasScreenState extends State<PartidasScreen> {
                     Navigator.of(context).pop();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => DetallesJuegoScreen()),
                     );
                   });
                 },
@@ -75,9 +83,29 @@ class _PartidasScreenState extends State<PartidasScreen> {
                 itemBuilder: (context, index) {
                   String nombre = partidasTemp[index]["nombre"];
                   int puntuacion = partidasTemp[index]["puntuacion"];
-                  return ListTile(
-                    title: Text(nombre),
-                    subtitle: Text('Puntuación: $puntuacion'),
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    elevation: 4.0,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.deepPurple,
+                        child: Text(
+                          nombre[0],
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      title: Text(
+                        nombre,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text('Puntuación: $puntuacion'),
+                      trailing: Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        // Acciones cuando se pulsa en la tarjeta
+                      },
+                    ),
                   );
                 },
               ),
@@ -161,9 +189,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
         }
 
         await partidasRef.add({
-          "partidas": Map.fromEntries(partidasTemp.map((e) =>
-              MapEntry<String, dynamic>(
-                  e['nombre'] as String, e['puntuacion']))),
+          "partidas": Map.fromEntries(partidasTemp.map((e) => MapEntry<String, dynamic>(e['nombre'] as String, e['puntuacion']))),
           "orden": nuevoOrden,
         });
 
