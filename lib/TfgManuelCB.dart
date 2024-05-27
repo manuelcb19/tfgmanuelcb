@@ -12,6 +12,7 @@ import 'package:tfgmanuelcb/Splash/SplashViewWeb.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
 
+import 'Home/CalendarScreen.dart';
 import 'Home/EditDatos.dart';
 import 'Home/Estadisticas.dart';
 import 'Home/MapaView.dart';
@@ -42,6 +43,7 @@ class TfgManuelCB extends StatelessWidget{
           '/mapaview':(context) => MapaView(),
           '/estadisticas':(context) => Estadisticas(),
           '/editdatos':(context) => EditDatos(),
+          '/calendarscreen':(context) => CalendarScreen(),
         },
         initialRoute: '/splashviewweb',
       );
@@ -61,6 +63,7 @@ class TfgManuelCB extends StatelessWidget{
           '/mapaview':(context) => MapaView(),
           '/estadisticas':(context) => Estadisticas(),
           '/editdatos':(context) => EditDatos(),
+          '/calendarscreen':(context) => CalendarScreen(),
         },
         initialRoute: '/splashview',
         debugShowCheckedModeBanner: false,

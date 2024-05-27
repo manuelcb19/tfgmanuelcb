@@ -64,6 +64,12 @@ class CustomDrawer extends StatelessWidget {
               onItemTap!(4);
             },
           ),
+          ListTile(
+            title: const Text('Calendario'),
+            onTap: () {
+              onItemTap!(5);
+            },
+          ),
         ],
       ),
     );
