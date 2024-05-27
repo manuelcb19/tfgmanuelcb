@@ -19,42 +19,34 @@ class LoginViewWeb extends StatelessWidget {
   TextEditingController usuarioControlador = TextEditingController();
   TextEditingController usuarioPassword = TextEditingController();
 
-  void onClickRegistrar(){
+  void onClickRegistrar() {
     Navigator.of(_context).pushNamed("/registerview");
   }
 
   void onClickAceptar() async {
-
     final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: usuarioControlador.text,
         password: usuarioPassword.text
     );
     if (usuarioControlador.text.isEmpty || usuarioPassword.text.isEmpty) {
-      CustomDialog.show(_context, "Existen algún campo vacío, por favor, compruébalo");
+      CustomDialog.show(
+          _context, "Existen algún campo vacío, por favor, compruébalo");
     } else {
       try {
-
-        if (await conexion.fbadmin.existenDatos()){
+        if (await conexion.fbadmin.existenDatos()) {
           Navigator.of(_context).popAndPushNamed("/homeview");
-
         }
 
-        else{
+        else {
           Navigator.of(_context).popAndPushNamed("/perfilview");
         }
-
       } on FirebaseAuthException catch (e) {
-
         CustomDialog.show(_context, "Usuario o contraseña incorrectos");
 
         if (e.code == 'user-not-found') {
-
           CustomDialog.show(_context, "El usuario no existe");
-
         } else if (e.code == 'wrong-password') {
-
           CustomDialog.show(_context, "contraseña incorrecta");
-
         }
       }
     }
@@ -66,33 +58,51 @@ class LoginViewWeb extends StatelessWidget {
     // TODO: implement build
 
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Login'),
-          centerTitle: true,
-          shadowColor: Colors.white,
-          backgroundColor: Colors.deepPurple,
-        ),
-        backgroundColor: Colors.white,
-        body:
-        Center(
-          child: ConstrainedBox(constraints: BoxConstraints(
-            minWidth: 500,
-            minHeight: 700,
-            maxWidth: 1000,
-            maxHeight: 900,
+      appBar: AppBar(
+        title: const Text('Login'),
+        centerTitle: true,
+        shadowColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('resources/20867.jpg'),
+            // Asegúrate de tener la imagen en la carpeta assets
+            fit: BoxFit.cover,
           ),
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: 500,
+              minHeight: 700,
+              maxWidth: 1000,
+              maxHeight: 900,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-
               children: [
-                Text("Tfg BoardGames", style: TextStyle(fontSize: 25)),
+                Text("Tfg BoardGames",
+                    style: TextStyle(fontSize: 25, color: Colors.white)),
+                // Cambié el color del texto para que sea visible sobre el fondo
 
-                Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                    child:  customTextField(tecUsername: usuarioControlador, oscuro: false, sHint: "introduzca su Nombre",)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                  child: customTextField(
+                    tecUsername: usuarioControlador,
+                    oscuro: false,
+                    sHint: "introduzca su Nombre",
+                  ),
                 ),
 
-                Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                    child:  customTextField(tecUsername: usuarioPassword, oscuro: true, sHint: "introduzca su Contraseña",)
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                  child: customTextField(
+                    tecUsername: usuarioPassword,
+                    oscuro: true,
+                    sHint: "introduzca su Contraseña",
+                  ),
                 ),
 
                 Column(
@@ -101,17 +111,20 @@ class LoginViewWeb extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CustomButton(onPressed: onClickAceptar, texto: 'aceptar',),
-                        CustomButton(onPressed: onClickRegistrar, texto: 'registrar',),
+                        CustomButton(
+                            onPressed: onClickAceptar, texto: 'aceptar'),
+                        CustomButton(
+                            onPressed: onClickRegistrar, texto: 'registrar'),
                       ],
                     ),
                     SizedBox(height: 16),
                   ],
                 ),
-
               ],
-            ),),
-        )
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

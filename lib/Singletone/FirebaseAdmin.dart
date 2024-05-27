@@ -32,6 +32,31 @@ class FirebaseAdmin {
     return boardGame;
   }
 
+  Future<void> agregarJuegosDeMesaAlUsuarioLista(List<BoardGame> lista) async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+
+      for (var boardGame in lista) {
+        await db.collection("ColeccionJuegos")
+            .doc(userId)
+            .collection("juegos")
+            .doc(boardGame.id.toString()) // Asegúrate de que `id` sea una cadena
+            .set({
+          "nombre": boardGame.name, // Asumiendo que `BoardGame` tiene una propiedad `name`
+          "yearPublished": boardGame.yearPublished,
+          "image": boardGame.image.toString(),
+          "id": boardGame.id
+        });
+      }
+    } catch (e) {
+      print("Error al agregar juegos de mesa al usuario: $e");
+    }
+  }
+
+
+
+
+
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;

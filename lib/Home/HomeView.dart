@@ -191,6 +191,9 @@ class _HomeViewState extends State<HomeView> {
        else if (indice == 3) {
          Navigator.of(context).pushNamed('/mapaview', arguments: {},);
       }
+    else if (indice == 4) {
+      Navigator.of(context).pushNamed('/editdatos', arguments: {},);
+    }
   }
   void _borrarJuego(FbBoardGame juego) {
     showDialog(

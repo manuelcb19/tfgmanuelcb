@@ -32,7 +32,7 @@ class _PerfilViewState extends State<PerfilView> {
     setState(() {
       mostrarPredefinida = false;
     });
-
+    conexion.fbadmin.agregarJuegosDeMesaAlUsuarioLista(listaJuegos);
     conexion.fbadmin.anadirUsuario(
         tecNombre.text, tecApellidos.text, _selectedImageUrl);
     Navigator.of(_context).popAndPushNamed("/homeview");
@@ -176,7 +176,7 @@ class _PerfilViewState extends State<PerfilView> {
                                     listaJuegos.add(juego);
                                   });
                                 }
-                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
+                                //await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
                                 Navigator.of(context).pop(id.toString());
                               },
                             ),
