@@ -38,38 +38,36 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _simulateLoading() async {
-
     await Future.delayed(Duration(seconds: 2));
   }
 
   Future<void> conseguirUsuario() async {
-    //FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
-    print("FFFFFFFFFFFFFFFFFFFFFFFF"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
-    setState(() async {
-      FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
-      print("ffffffffffffffffffffffffff"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
+    FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
+    setState(() {
       this.perfil = perfil;
     });
-    print("ffffffffffffffffffffffffff"+perfil.nombre + perfil.shint + perfil.id + perfil.apellidos);
   }
 
   Future<void> cargarDatosDesdeCache() async {
     List<FbBoardGame> cachedGames = await conexion.loadAllFbJuegos();
-    print(perfil.shint.toString());
     if (cachedGames.isNotEmpty) {
-      print("Juegos en el caché:");
       for (var juego in cachedGames) {
         print("${juego.id}: ${juego.nombre}");
       }
     }
   }
 
+  Future<void> recargarCache() async {
+    List<FbBoardGame> juegos = await conexion.fbadmin.descargarJuegos();
+    await conexion.recargarCacheDeJuegos(juegos);
+  }
+
   Future<void> _initData() async {
     List<FbBoardGame> downloadedGamesCache = await conexion.loadAllFbJuegos();
     List<FbBoardGame> dowloadByFirebase = await conexion.fbadmin.descargarJuegos();
     List<FbBoardGame> downloadedGames;
-
-    if(downloadedGamesCache.length == dowloadByFirebase.length) {
+    recargarCache();
+    if (downloadedGamesCache.length == dowloadByFirebase.length) {
       downloadedGames = await conexion.loadAllFbJuegos();
     } else {
       downloadedGames = await conexion.fbadmin.descargarJuegos();
@@ -88,22 +86,37 @@ class _HomeViewState extends State<HomeView> {
         children: downloadedGames.map((juego) {
           return DragAndDropItem(
             child: Card(
+              elevation: 4,
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Column(
                 children: <Widget>[
                   ListTile(
+                    contentPadding: EdgeInsets.all(10),
                     leading: juego.sUrlImg != null
-                        ? Image.network(
-                      juego.sUrlImg,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        juego.sUrlImg,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
                     )
                         : Container(),
-                    title: Text(juego.nombre),
+                    title: Text(
+                      juego.nombre,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
                     trailing: mostrarBorrar
                         ? IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
                         _borrarJuego(juego);
                       },
@@ -132,9 +145,10 @@ class _HomeViewState extends State<HomeView> {
   void _onItemReorder(int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {
     setState(() {
       var movedItem = ListaJuegosdrag[oldListIndex].children.removeAt(oldItemIndex);
-
       ListaJuegosdrag[oldListIndex].children.insert(newItemIndex, movedItem);
     });
+    obtenerNombreYOrdenDeJuego();
+    recargarCache();
   }
 
   void _onListReorder(int oldListIndex, int newListIndex) {
@@ -144,35 +158,64 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
+  void obtenerNombreYOrdenDeJuego() {
+    Map<String, int> juegosOrdenados = {};
+
+    for (var i = 0; i < ListaJuegosdrag.length; i++) {
+      var lista = ListaJuegosdrag[i];
+
+      for (var j = 0; j < lista.children.length; j++) {
+        var item = lista.children[j];
+        Widget childWidget = item.child;
+
+        if (childWidget is Card) {
+          Card card = childWidget;
+          ListTile? listTile;
+          if (card.child is ListTile) {
+            listTile = card.child as ListTile;
+          } else if (card.child is Column) {
+            Column column = card.child as Column;
+            for (var widget in column.children) {
+              if (widget is ListTile) {
+                listTile = widget;
+                break;
+              }
+            }
+          }
+
+          if (listTile != null) {
+            String? nombreJuego;
+            if (listTile.title is Text) {
+              nombreJuego = (listTile.title as Text).data;
+            }
+
+            if (nombreJuego != null) {
+              int ordenJuego = i * lista.children.length + j + 1;
+              juegosOrdenados[nombreJuego] = ordenJuego;
+            }
+          }
+        }
+      }
+    }
+
+    conexion.fbadmin.actualizarOrdenJuegos(juegosOrdenados);
+  }
+
   void fHomeViewMenuBar(int indice) {
     setState(() {
       if (indice == 1) {
         mostrarBorrar = false;
-        if(mostrarDesplazar)
-        {
-          mostrarDesplazar = false;
-        }
-        else
-        {
-          mostrarDesplazar = true;
-        }
+        mostrarDesplazar = !mostrarDesplazar;
       } else if (indice == 2) {
-        if(mostrarBorrar)
-          {
-            mostrarBorrar = false;
-          }
-        else
-          {
-            mostrarBorrar = true;
-          }
+        mostrarBorrar = !mostrarBorrar;
         mostrarDesplazar = false;
       }
     });
+    // Actualizar la lista para reflejar los cambios
     _initData();
   }
-  void fHomeViewDrawerOnTap(int indice) async {
-    print("---->>>> " + indice.toString());
 
+  void fHomeViewDrawerOnTap(int indice) async {
     if (indice == 0) {
       FirebaseAuth.instance.signOut();
       Navigator.of(context).pushAndRemoveUntil(
@@ -180,24 +223,18 @@ class _HomeViewState extends State<HomeView> {
         ModalRoute.withName('/loginview'),
       );
     } else if (indice == 1) {
-      Navigator.of(context).pushNamed(
-        '/moment',
-        arguments: {},
-      );
-
+      Navigator.of(context).pushNamed('/moment', arguments: {});
     } else if (indice == 2) {
-      Navigator.of(context).pushNamed('/consultarjuegomesa', arguments: {},);
-    }
-       else if (indice == 3) {
-         Navigator.of(context).pushNamed('/mapaview', arguments: {},);
-      }
-    else if (indice == 4) {
-      Navigator.of(context).pushNamed('/editdatos', arguments: {},);
-    }
-    else if (indice == 5) {
-      Navigator.of(context).pushNamed('/calendarscreen', arguments: {},);
+      Navigator.of(context).pushNamed('/consultarjuegomesa', arguments: {});
+    } else if (indice == 3) {
+      Navigator.of(context).pushNamed('/mapaview', arguments: {});
+    } else if (indice == 4) {
+      Navigator.of(context).pushNamed('/editdatos', arguments: {});
+    } else if (indice == 5) {
+      Navigator.of(context).pushNamed('/calendarscreen', arguments: {});
     }
   }
+
   void _borrarJuego(FbBoardGame juego) {
     showDialog(
       context: context,
@@ -227,7 +264,6 @@ class _HomeViewState extends State<HomeView> {
       },
     );
   }
-
 
   Future<void> _agregarJuegoDialog() async {
     String? selectedIdFromList = await showDialog<String>(
@@ -321,13 +357,13 @@ class _HomeViewState extends State<HomeView> {
         title: const Text('Lista Juegos'),
         shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
-        actions: [ // Agregado para incluir CustomMenuBar en la AppBar
+        actions: [
           CustomMenuBar(
             onItemTap: fHomeViewMenuBar,
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[100],
       body: FutureBuilder(
         future: _loadingFuture,
         builder: (context, snapshot) {
@@ -344,7 +380,6 @@ class _HomeViewState extends State<HomeView> {
               itemDivider: Divider(
                 thickness: 2,
                 height: 2,
-                color: Theme.of(context).colorScheme.background,
               ),
               itemDragHandle: mostrarDesplazar
                   ? DragHandle(
@@ -356,7 +391,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                 ),
               )
-                  : null, // Eliminé la coma aquí
+                  : null,
             );
           }
         },
@@ -372,4 +407,3 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 }
-

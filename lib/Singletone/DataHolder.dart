@@ -32,6 +32,7 @@ class DataHolder {
     return _dataHolder;
   }
 
+
   void saveAllJuegosInCache(List<FbBoardGame> juegos) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -75,8 +76,30 @@ class DataHolder {
     return juegos;
   }
 
+  Future<void> recargarCacheDeJuegos(List<FbBoardGame> juegos) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // Obtenemos las claves de la caché relacionadas con los juegos
+    List<String> keysToDelete = prefs.getKeys().where((key) => key.startsWith('fbboardgame_')).toList();
+
+    // Eliminamos las claves de forma asíncrona utilizando un bucle for
+    for (var key in keysToDelete) {
+      await prefs.remove(key);
+    }
+
+    // Agregamos los juegos actualizados a la caché
+    for (var juego in juegos) {
+      await prefs.setString('fbboardgame_nombre_${juego.id}', juego.nombre);
+      await prefs.setInt('fbboardgame_orden_${juego.id}', juego.orden ?? 0);
+      await prefs.setInt('fbboardgame_yearpublished_${juego.id}', juego.yearPublished ?? 0);
+      await prefs.setString('fbboardgame_surlimg_${juego.id}', juego.sUrlImg ?? "");
+    }
+  }
   void initPlatformAdmin(BuildContext context){
     platformAdmin=PlatformAdmin(context: context);
   }
 }
+
+
+
+

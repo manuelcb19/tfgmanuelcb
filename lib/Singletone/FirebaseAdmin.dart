@@ -32,6 +32,23 @@ class FirebaseAdmin {
     return boardGame;
   }
 
+  Future<int> obtenerOrdenMasAlto(String userId) async {
+    QuerySnapshot snapshot = await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .orderBy("orden", descending: true)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      // Asumiendo que el campo "orden" es de tipo int.
+      return snapshot.docs.first.get("orden");
+    } else {
+      return 0;
+    }
+  }
+
   Future<void> agregarJuegosDeMesaAlUsuarioLista(List<BoardGame> lista) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
@@ -46,6 +63,7 @@ class FirebaseAdmin {
           "yearPublished": boardGame.yearPublished,
           "image": boardGame.image.toString(),
           "id": boardGame.id
+
         });
       }
     } catch (e) {
@@ -53,14 +71,60 @@ class FirebaseAdmin {
     }
   }
 
+  Future<void> actualizarOrdenJuegos(Map<String, int> juegosOrdenados) async {
+    // Descargar los juegos de Firebase y construir un mapa de nombre de juego a ID de juego
+    List<FbBoardGame> juegosFirebase = await descargarJuegos();
 
+    // Obtener el ID del usuario actual
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Recorrer el diccionario juegosOrdenados y mostrar ambos campos por pantalla
+    for (var entry in juegosOrdenados.entries) {
+      String nombreJuego = entry.key;
+      int ordenJuego = entry.value;
+
+      // Limpiar el nombre del juego eliminando el prefijo "Text(" y los paréntesis
+      String nombreJuegoLimpio = nombreJuego;
+
+      if (nombreJuego.startsWith('Text(') && nombreJuego.endsWith(')')) {
+        nombreJuegoLimpio = nombreJuego.substring(5, nombreJuego.length - 1);
+      }
+
+      // Eliminar comillas dobles si las hay
+      nombreJuegoLimpio = nombreJuegoLimpio.replaceAll('"', '');
+
+      print("Nombre del juego limpio: $nombreJuegoLimpio, orden del juego: $ordenJuego");
+
+      // Recorrer la lista de juegosFirebase
+      for (var juego in juegosFirebase) {
+        print("Nombre del juego en Firebase: ${juego.nombre}");
+
+        // Comprobar si el nombre del juego coincide
+        if (juego.nombre == nombreJuegoLimpio) {
+          // Si coincide, actualizar el orden del juego en Firebase
+          try {
+            await db.collection("ColeccionJuegos")
+                .doc(userId)
+                .collection("juegos")
+                .doc(juego.id.toString())
+                .update({
+              "orden": ordenJuego,
+            });
+            print('Orden actualizado para el juego: ${juego.nombre}, ID: ${juego.id}');
+          } catch (e) {
+            print('Error al actualizar el orden del juego: ${juego.nombre}, ID: ${juego.id}, Error: $e');
+          }
+        }
+      }
+    }
+  }
 
 
 
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-
+      int numero = await obtenerOrdenMasAlto(userId);
       var bgg = Bgg();
       var boardGame = await bgg.getBoardGame(int.parse(idJuego));
       await db.collection("ColeccionJuegos")
@@ -68,11 +132,12 @@ class FirebaseAdmin {
           .collection("juegos")
           .doc(idJuego)
           .set({
-          "nombre": nombre,
-          "yearPublished": boardGame?.yearPublished,
-          "image": boardGame?.image.toString(),
-          "id": boardGame?.id
-        });
+        "nombre": nombre,
+        "yearPublished": boardGame?.yearPublished,
+        "image": boardGame?.image.toString(),
+        "id": boardGame?.id,
+        "orden": numero,
+      });
 
     } catch (e) {
       print("Error al agregar juego de mesa al usuario: $e");
