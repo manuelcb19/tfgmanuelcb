@@ -2,76 +2,88 @@ import 'package:flutter/material.dart';
 import 'package:tfgmanuelcb/Singletone/DataHolder.dart';
 
 class CustomDrawer extends StatelessWidget {
-  Function(int indice)? onItemTap;
-  String imagen;
+  final Function(int indice)? onItemTap;
+  final String imagen;
 
   CustomDrawer({Key? key, required this.onItemTap, required this.imagen}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          DrawerHeader(
+          UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Colors.deepPurple,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            accountName: Text(
+              "Bienvenido",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            accountEmail: Text(""),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: NetworkImage(imagen),
+            ),
+          ),
+          Expanded(
+            child: ListView(
               children: [
-                CircleAvatar(
-                  radius: 50, // Ajusta el tamaño de la imagen
-                  backgroundImage: NetworkImage(imagen),
+                _buildDrawerItem(
+                  icon: Icons.edit,
+                  text: 'Editar Perfil',
+                  onTap: () => onItemTap!(4),
                 ),
-                SizedBox(height: 10), // Espacio entre la imagen y el texto
-                Text(
-                  "Bienvenido",
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                _buildDrawerItem(
+                  icon: Icons.photo,
+                  text: 'Memory',
+                  onTap: () => onItemTap!(1),
+                  isSelected: true,
+                ),
+                _buildDrawerItem(
+                  icon: Icons.gamepad,
+                  text: 'Consultar Juego De Mesa',
+                  onTap: () => onItemTap!(2),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.calendar_today,
+                  text: 'Calendario',
+                  onTap: () => onItemTap!(5),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.store,
+                  text: 'Consultar Tienda mas Cercana',
+                  onTap: () => onItemTap!(3),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.exit_to_app,
+                  text: 'Cerrar Sesion',
+                  onTap: () => onItemTap!(0),
                 ),
               ],
             ),
           ),
-          ListTile(
-            selectedColor: Colors.blue,
-            selected: true,
-            title: const Text('Memory'),
-            onTap: () {
-              onItemTap!(1);
-            },
-          ),
-          ListTile(
-            title: const Text('Cerrar Sesion'),
-            onTap: () {
-              onItemTap!(0);
-            },
-          ),
-          ListTile(
-            title: const Text('Consultar Juego De Mesa'),
-            onTap: () {
-              onItemTap!(2);
-            },
-          ),
-          ListTile(
-            title: const Text('Consultar Tienda mas Cercana'),
-            onTap: () {
-              onItemTap!(3);
-            },
-          ),
-          ListTile(
-            title: const Text('Editar Perfil'),
-            onTap: () {
-              onItemTap!(4);
-            },
-          ),
-          ListTile(
-            title: const Text('Calendario'),
-            onTap: () {
-              onItemTap!(5);
-            },
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String text,
+    required GestureTapCallback onTap,
+    bool isSelected = false,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: isSelected ? Colors.blue : null),
+      title: Text(
+        text,
+        style: TextStyle(
+          color: isSelected ? Colors.blue : null,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        ),
+      ),
+      selected: isSelected,
+      onTap: onTap,
     );
   }
 }

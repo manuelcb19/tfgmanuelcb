@@ -111,9 +111,13 @@ class _HomeViewState extends State<HomeView> {
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: Colors.deepPurple,
                       ),
                     ),
-                    subtitle: Text('Año de Publicación: ${juego.yearPublished}'),
+                    subtitle: Text(
+                      'Año de Publicación: ${juego.yearPublished}',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
                     trailing: mostrarBorrar
                         ? IconButton(
                       icon: Icon(Icons.delete, color: Colors.red),
@@ -263,6 +267,7 @@ class _HomeViewState extends State<HomeView> {
         );
       },
     );
+    _initData();
   }
 
   Future<void> _agregarJuegoDialog() async {
@@ -273,25 +278,31 @@ class _HomeViewState extends State<HomeView> {
 
         return AlertDialog(
           title: Text('Buscar y Seleccionar Juego'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: TextEditingController(text: nombreJuegoBuscado),
-                  onChanged: (value) {
-                    nombreJuegoBuscado = value;
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Ingrese el nombre del juego',
-                    contentPadding: EdgeInsets.all(16.0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: TextEditingController(text: nombreJuegoBuscado),
+                onChanged: (value) {
+                  nombreJuegoBuscado = value;
+                },
+                decoration: InputDecoration(
+                  hintText: 'Ingrese el nombre del juego',
+                  contentPadding: EdgeInsets.all(16.0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
             TextButton(
               onPressed: () async {
                 Map<int, String> diccionario =
@@ -301,29 +312,26 @@ class _HomeViewState extends State<HomeView> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: Text('Lista de IDs'),
-                      content: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            for (int id in diccionario.keys)
-                              ListTile(
-                                title: Text(diccionario[id]!),
-                                onTap: () async {
-                                  await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(
-                                      id.toString(), diccionario[id]!);
-                                  Navigator.of(context).pop(id.toString());
-                                  conexion.fbadmin.descargarJuegos();
-                                  _initData();
-                                },
-                              ),
-                          ],
+                      title: Text('Lista de Juegos'),
+                      content: Container(
+                        width: double.maxFinite,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: diccionario.entries.map((entry) {
+                            return ListTile(
+                              title: Text(entry.value),
+                              onTap: () async {
+                                await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(
+                                    entry.key.toString(), entry.value);
+                                Navigator.of(context).pop(entry.key.toString());
+                              },
+                            );
+                          }).toList(),
                         ),
                       ),
                       actions: [
                         TextButton(
-                          child: Text('Aceptar'),
+                          child: Text('Cancelar'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -334,9 +342,10 @@ class _HomeViewState extends State<HomeView> {
                 );
 
                 if (selectedIdFromList != null && selectedIdFromList.isNotEmpty) {
-                  print("ID seleccionada: $selectedIdFromList");
                   Navigator.of(context).pop(selectedIdFromList);
-                } else {}
+                  await conexion.fbadmin.descargarJuegos();
+                  _initData();
+                }
               },
               child: Text('Aceptar'),
             ),
@@ -398,7 +407,8 @@ class _HomeViewState extends State<HomeView> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _agregarJuegoDialog,
-        child: Icon(Icons.add),
+        backgroundColor: Colors.deepPurple,
+        child: Icon(Icons.add, color: Colors.white),
       ),
       drawer: CustomDrawer(
         onItemTap: fHomeViewDrawerOnTap,

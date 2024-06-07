@@ -7,20 +7,18 @@ import '../CustomViews/CustomTextField.dart';
 
 
 class DetallesJuegoScreen extends StatefulWidget {
-
-  DataHolder conexion = DataHolder();
-
+  final DataHolder conexion = DataHolder();
 
   @override
   _DetallesJuegoScreenState createState() => _DetallesJuegoScreenState();
 }
 
 class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
-  DataHolder conexion = DataHolder();
+  final DataHolder conexion = DataHolder();
   List<Map<String, dynamic>> partidasList = [];
   late FbBoardGame? juego;
-  TextEditingController tecNombre = TextEditingController();
-  TextEditingController tecPuntuacion = TextEditingController();
+  final TextEditingController tecNombre = TextEditingController();
+  final TextEditingController tecPuntuacion = TextEditingController();
 
   @override
   void initState() {
@@ -30,7 +28,6 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
   }
 
   void descargarPartidas() async {
-
     partidasList.clear();
     partidasList = await conexion.fbadmin.descargarPartidas(juego);
     setState(() {});
@@ -41,13 +38,23 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Detalles de la Partida'),
+          title: Text('Modificar Jugador y Puntuación'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              customTextField(tecUsername: tecNombre, oscuro: false, sHint: "Nombre de puntuacion a cambiar",),
-              customTextField(tecUsername: tecPuntuacion, oscuro: false, sHint: "Introduzca la puntuacion nueva",),
+              _buildTextField(
+                controller: tecNombre,
+                hintText: "Nombre del jugador",
+                icon: Icons.person,
+              ),
+              SizedBox(height: 10),
+              _buildTextField(
+                controller: tecPuntuacion,
+                hintText: "Nueva puntuación",
+                icon: Icons.score,
+                keyboardType: TextInputType.number,
+              ),
             ],
           ),
           actions: [
@@ -57,7 +64,10 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
               },
               child: Text('Cerrar'),
             ),
-            TextButton(
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.deepPurple,
+              ),
               onPressed: () {
                 String nuevoNombre = tecNombre.text;
                 int nuevaPuntuacion = int.parse(tecPuntuacion.text);
@@ -76,6 +86,32 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     );
   }
 
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: Colors.deepPurple),
+        hintText: hintText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.deepPurple),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,19 +173,19 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                 );
               },
             ),
-          )
+          ),
         ],
       ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/partidasscreen', arguments: {}).then((_) {
-              Future.delayed(Duration(seconds: 2), () {
-                descargarPartidas();
-              });
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, '/partidasscreen', arguments: {}).then((_) {
+            Future.delayed(Duration(seconds: 2), () {
+              descargarPartidas();
             });
-          },
-          child: Icon(Icons.arrow_forward),
-        ),
+          });
+        },
+        child: Icon(Icons.arrow_forward),
+      ),
     );
   }
 }

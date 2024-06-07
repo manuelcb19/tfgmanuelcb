@@ -7,7 +7,7 @@ import 'DetallesJuegoScreen.dart';
 
 
 class PartidasScreen extends StatefulWidget {
-  String idJuego = DataHolder().juego.id.toString();
+  final String idJuego = DataHolder().juego.id.toString();
 
   @override
   _PartidasScreenState createState() => _PartidasScreenState();
@@ -22,7 +22,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
 
   Future<void> cargarJuego() async {
     await Future.delayed(Duration(seconds: 2));
-
     setState(() {
       nombre = conexion.juego.id.toString();
     });
@@ -45,37 +44,33 @@ class _PartidasScreenState extends State<PartidasScreen> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                onPressed: _agregarPartida,
-                child: Text('Agregar Jugador'),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Gestión de Partidas',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _agregarPartidasFirestore();
-                  setState(() {
-                    loading = true;
-                  });
-                  Future.delayed(Duration(seconds: 2), () {
-                    setState(() {
-                      loading = false;
-                    });
-                    Navigator.of(context).pop();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DetallesJuegoScreen()),
-                    );
-                  });
-                },
-                child: Text('Agregar Partida al Juego'),
-              ),
-            ],
+            ),
           ),
           if (loading)
-            CircularProgressIndicator()
+            Center(child: CircularProgressIndicator())
+          else if (partidasTemp.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'No hay partidas registradas. Agrega una nueva partida para comenzar.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
+            )
           else
             Expanded(
               child: ListView.builder(
@@ -86,6 +81,9 @@ class _PartidasScreenState extends State<PartidasScreen> {
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     elevation: 4.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.deepPurple,
@@ -96,9 +94,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
                       ),
                       title: Text(
                         nombre,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text('Puntuación: $puntuacion'),
                       trailing: Icon(Icons.arrow_forward_ios),
@@ -112,6 +108,39 @@ class _PartidasScreenState extends State<PartidasScreen> {
             ),
         ],
       ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: _agregarPartida,
+            backgroundColor: Colors.deepPurple,
+            child: Icon(Icons.person_add),
+            tooltip: 'Agregar Jugador',
+          ),
+          SizedBox(height: 10),
+          FloatingActionButton(
+            onPressed: () {
+              _agregarPartidasFirestore();
+              setState(() {
+                loading = true;
+              });
+              Future.delayed(Duration(seconds: 2), () {
+                setState(() {
+                  loading = false;
+                });
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => DetallesJuegoScreen()),
+                );
+              });
+            },
+            backgroundColor: Colors.deepPurple,
+            child: Icon(Icons.add),
+            tooltip: 'Agregar Partida',
+          ),
+        ],
+      ),
     );
   }
 
@@ -120,7 +149,6 @@ class _PartidasScreenState extends State<PartidasScreen> {
       context: context,
       builder: (context) {
         int puntuacion = 0;
-
         return AlertDialog(
           title: Text('Agregar Partida'),
           content: Column(
@@ -130,14 +158,25 @@ class _PartidasScreenState extends State<PartidasScreen> {
                 onChanged: (value) {
                   nombre = value;
                 },
-                decoration: InputDecoration(labelText: 'Nombre'),
+                decoration: InputDecoration(
+                  labelText: 'Nombre',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
+              SizedBox(height: 10),
               TextField(
                 onChanged: (value) {
                   puntuacion = int.tryParse(value) ?? 0;
                 },
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Puntuación'),
+                decoration: InputDecoration(
+                  labelText: 'Puntuación',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
               ),
             ],
           ),
@@ -148,8 +187,11 @@ class _PartidasScreenState extends State<PartidasScreen> {
               },
               child: Text('Cancelar'),
             ),
-            TextButton(
-              onPressed: () async {
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.deepPurple,
+              ),
+              onPressed: () {
                 setState(() {
                   partidasTemp.add({
                     "nombre": nombre,
