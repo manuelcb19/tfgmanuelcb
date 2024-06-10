@@ -23,55 +23,69 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (boardGame != null && boardGame!.image != null)
-              _buildGameImage(),
-            if (boardGame != null && boardGame!.name != null)
-              _buildGameName(),
-            if (boardGame != null)
-              _buildGameDetails(),
-            ElevatedButton(
-              onPressed: () async {
-                String? nombreJuego = await conexion.dialogclass.showSearchDialog(context);
-                if (nombreJuego != null && nombreJuego.isNotEmpty) {
-                  print("Nombre del juego seleccionado: $nombreJuego");
-                  Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
-                  String? selectedIdFromList = await showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text('Lista de IDs'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              for (int id in diccionario.keys)
-                                ListTile(
-                                  title: Text(diccionario[id]!),
-                                  onTap: () async {
-                                    boardGame = await conexion.fbadmin.buscarJuegoMesa(id.toString(), diccionario[id]!);
-                                    setState(() {});
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                            ],
+            if (boardGame != null && boardGame!.image != null) _buildGameImage(),
+            if (boardGame != null && boardGame!.name != null) _buildGameName(),
+            if (boardGame != null) _buildGameDetails(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  String? nombreJuego = await conexion.dialogclass.showSearchDialog(context);
+                  if (nombreJuego != null && nombreJuego.isNotEmpty) {
+                    print("Nombre del juego seleccionado: $nombreJuego");
+                    Map<int, String> diccionario = await conexion.httpAdmin.obtenerDiccionarioDeIds(nombreJuego);
+                    String? selectedIdFromList = await showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Lista de IDs'),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (int id in diccionario.keys)
+                                  ListTile(
+                                    title: Text(diccionario[id]!),
+                                    onTap: () async {
+                                      boardGame = await conexion.fbadmin.buscarJuegoMesa(id.toString(), diccionario[id]!);
+                                      setState(() {});
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                        actions: [
-                          TextButton(
-                            child: Text('Aceptar'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: Text('Buscar Juego de Mesa'),
+                          actions: [
+                            TextButton(
+                              child: Text('Aceptar'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                icon: Icon(Icons.search),
+                label: Text('Buscar Juego de Mesa'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.deepPurple, // Background color
+                  onPrimary: Colors.white, // Text color
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -94,6 +108,7 @@ class _ConsultarJuegoMesaState extends State<ConsultarJuegoMesa> {
       child: Text(
         boardGame!.name!,
         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
       ),
     );
   }

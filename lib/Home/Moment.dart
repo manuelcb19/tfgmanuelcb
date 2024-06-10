@@ -21,7 +21,7 @@ class _MomentViewState extends State<Moment> {
   DataHolder conexion = DataHolder();
   FirebaseFirestore db = FirebaseFirestore.instance;
   ImagePicker _picker = ImagePicker();
-  File _imagePreview = File("");
+  File? _imagePreview;
   String userId = FirebaseAuth.instance.currentUser!.uid;
   List<FbImagen> imagenes = [];
 
@@ -54,33 +54,23 @@ class _MomentViewState extends State<Moment> {
     String rutaEnNube =
         "memory/" + userId + "/memories/" + DateTime.now().millisecondsSinceEpoch.toString() + ".jpg";
 
-    print("RUTA DONDE VA A GUARDARSE LA IMAGEN: $rutaEnNube");
-
     final rutaAFicheroEnNube = storageRef.child(rutaEnNube);
-    print("La ruta donde se va a guardar en la nube es: " + rutaAFicheroEnNube.toString());
 
     final metadata = SettableMetadata(contentType: "image/jpeg");
 
     try {
-      await rutaAFicheroEnNube.putFile(_imagePreview, metadata);
-      print("SE HA SUBIDO LA IMAGEN");
+      await rutaAFicheroEnNube.putFile(_imagePreview!, metadata);
 
       String url = await rutaAFicheroEnNube.getDownloadURL();
-      print("URL de la imagen: $url");
-
       return url;
     } on FirebaseException catch (e) {
       print("ERROR AL SUBIR IMAGEN: " + e.toString());
-      print("STACK TRACE: " + e.stackTrace.toString());
-      print("RUTA DEL ARCHIVO: $rutaEnNube");
       return "no funciona";
     }
   }
 
   Future<void> addMemory(String contenido, String imageUrl) async {
-    print("hasta aqui ha llegado");
     try {
-      print("hasta aqui ha llegado");
       await db.collection("memory").doc(userId).collection("memories").add({
         "contenido": contenido,
         "imagen": imageUrl.toString(),
@@ -105,12 +95,9 @@ class _MomentViewState extends State<Moment> {
 
   Future<void> subirLaImagen() async {
     String contenido = tecPost.text;
-    print("el titulo del post es : " + contenido.toString());
-    print("la imagen es: " + _imagePreview.toString());
-    if (_imagePreview != null && _imagePreview.existsSync()) {
+    if (_imagePreview != null && _imagePreview!.existsSync()) {
       try {
         String imageUrl = await setearUrlImagen();
-        print("URL de la imagen: $imageUrl");
 
         if (imageUrl.isNotEmpty) {
           await addMemory(contenido, imageUrl);
@@ -132,7 +119,6 @@ class _MomentViewState extends State<Moment> {
   }
 
   Widget creadorDeItemLista(BuildContext context, int index) {
-    print("FFFFFFFFFFFFFFFFFFFFF" + imagenes[index].imagen.toString());
     return CustomCellView(sTexto: imagenes[index].contenido, imagen: imagenes[index].imagen);
   }
 
@@ -151,21 +137,43 @@ class _MomentViewState extends State<Moment> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Subir Imagen"),
-          content: Column(
-            children: [
-              customTextField(
-                tecUsername: tecPost,
-                oscuro: false,
-                sHint: "Título del momento",
-              ),
-              ElevatedButton(
-                onPressed: () => onCameraClicked(),
-                child: Text("Desde galería"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                customTextField(
+                  tecUsername: tecPost,
+                  oscuro: false,
+                  sHint: "Título del momento",
                 ),
-              ),
-            ],
+                SizedBox(height: 16),
+                if (_imagePreview != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Image.file(
+                      _imagePreview!,
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => onCameraClicked(),
+                  child: Text("Desde la cámara"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () => onGalleryClicked(),
+                  child: Text("Desde galería"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             ElevatedButton(
@@ -173,10 +181,7 @@ class _MomentViewState extends State<Moment> {
                 Navigator.of(context).pop();
                 String titulo = tecPost.text;
                 if (_imagePreview != null && titulo.isNotEmpty) {
-                  print("Título seleccionado: $titulo");
-                  print(_imagePreview.toString() + "Esta es la imagen");
                   String imageUrl = await setearUrlImagen();
-                  print(imageUrl.toString());
 
                   await Future.delayed(Duration(seconds: 2), () {
                     addMemory(titulo, imageUrl);

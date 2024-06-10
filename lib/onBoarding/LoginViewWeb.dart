@@ -11,7 +11,6 @@ import '../Singletone/DataHolder.dart';
 
 
 class LoginViewWeb extends StatelessWidget {
-
   FirebaseFirestore db = FirebaseFirestore.instance;
   late BuildContext _context;
   DataHolder conexion = DataHolder();
@@ -24,30 +23,29 @@ class LoginViewWeb extends StatelessWidget {
   }
 
   void onClickAceptar() async {
-    final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: usuarioControlador.text,
-        password: usuarioPassword.text
-    );
     if (usuarioControlador.text.isEmpty || usuarioPassword.text.isEmpty) {
-      CustomDialog.show(
-          _context, "Existen algún campo vacío, por favor, compruébalo");
-    } else {
-      try {
-        if (await conexion.fbadmin.existenDatos()) {
-          Navigator.of(_context).popAndPushNamed("/homeview");
-        }
+      CustomDialog.show(_context, "Existen algún campo vacío, por favor, compruébalo");
+      return;
+    }
 
-        else {
-          Navigator.of(_context).popAndPushNamed("/perfilview");
-        }
-      } on FirebaseAuthException catch (e) {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: usuarioControlador.text,
+        password: usuarioPassword.text,
+      );
+
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        CustomDialog.show(_context, "El usuario no existe");
+      } else if (e.code == 'wrong-password') {
+        CustomDialog.show(_context, "Contraseña incorrecta");
+      } else {
         CustomDialog.show(_context, "Usuario o contraseña incorrectos");
-
-        if (e.code == 'user-not-found') {
-          CustomDialog.show(_context, "El usuario no existe");
-        } else if (e.code == 'wrong-password') {
-          CustomDialog.show(_context, "contraseña incorrecta");
-        }
       }
     }
   }
@@ -55,8 +53,6 @@ class LoginViewWeb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _context = context;
-    // TODO: implement build
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -67,60 +63,62 @@ class LoginViewWeb extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('resources/20867.jpg'),
-            // Asegúrate de tener la imagen en la carpeta assets
+            image: AssetImage('assets/20867.jpg'),
             fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minWidth: 500,
-              minHeight: 700,
-              maxWidth: 1000,
-              maxHeight: 900,
+              minWidth: 300,
+              minHeight: 500,
+              maxWidth: 600,
+              maxHeight: 800,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Tfg BoardGames",
-                    style: TextStyle(fontSize: 25, color: Colors.white)),
-                // Cambié el color del texto para que sea visible sobre el fondo
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                  child: customTextField(
-                    tecUsername: usuarioControlador,
-                    oscuro: false,
-                    sHint: "introduzca su Nombre",
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                  child: customTextField(
-                    tecUsername: usuarioPassword,
-                    oscuro: true,
-                    sHint: "introduzca su Contraseña",
-                  ),
-                ),
-
-                Column(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              elevation: 5,
+              margin: EdgeInsets.all(20),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text("Tfg BoardGames",
+                        style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepPurple)),
+                    SizedBox(height: 30),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: customTextField(
+                        tecUsername: usuarioControlador,
+                        oscuro: false,
+                        sHint: "Introduzca su Nombre",
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: customTextField(
+                        tecUsername: usuarioPassword,
+                        oscuro: true,
+                        sHint: "Introduzca su Contraseña",
+                      ),
+                    ),
+                    SizedBox(height: 30),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        CustomButton(
-                            onPressed: onClickAceptar, texto: 'aceptar'),
-                        CustomButton(
-                            onPressed: onClickRegistrar, texto: 'registrar'),
+                        CustomButton(onPressed: onClickAceptar, texto: 'Aceptar'),
+                        CustomButton(onPressed: onClickRegistrar, texto: 'Registrar'),
                       ],
                     ),
-                    SizedBox(height: 16),
                   ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

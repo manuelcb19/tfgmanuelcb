@@ -12,7 +12,6 @@ import '../Singletone/DataHolder.dart';
 
 
 class LoginView extends StatelessWidget {
-
   FirebaseFirestore db = FirebaseFirestore.instance;
   late BuildContext _context;
   DataHolder conexion = DataHolder();
@@ -20,49 +19,39 @@ class LoginView extends StatelessWidget {
   TextEditingController usuarioControlador = TextEditingController();
   TextEditingController usuarioPassword = TextEditingController();
 
-  void onClickRegistrar(){
+  void onClickRegistrar() {
     Navigator.of(_context).pushNamed("/registerview");
   }
 
   void onClickAceptar() async {
-
-    final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: usuarioControlador.text,
-        password: usuarioPassword.text
-    );
     if (usuarioControlador.text.isEmpty || usuarioPassword.text.isEmpty) {
       CustomDialog.show(_context, "Existen algún campo vacío, por favor, compruébalo");
-    } else {
-      try {
+      return;
+    }
 
-        if (await conexion.fbadmin.existenDatos()){
-          Navigator.of(_context).popAndPushNamed("/homeview");
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: usuarioControlador.text,
+        password: usuarioPassword.text,
+      );
 
-        }
-
-        else{
-          Navigator.of(_context).popAndPushNamed("/perfilview");
-        }
-
-      } on FirebaseAuthException catch (e) {
-
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        CustomDialog.show(_context, "El usuario no existe");
+      } else if (e.code == 'wrong-password') {
+        CustomDialog.show(_context, "Contraseña incorrecta");
+      } else {
         CustomDialog.show(_context, "Usuario o contraseña incorrectos");
-
-        if (e.code == 'user-not-found') {
-
-          CustomDialog.show(_context, "El usuario no existe");
-
-        } else if (e.code == 'wrong-password') {
-
-          CustomDialog.show(_context, "contraseña incorrecta");
-
-        }
       }
     }
   }
 
   Future<void> signInWithGoogle() async {
-
     if (FirebaseAuth.instance.currentUser != null) {
       if (await conexion.fbadmin.existenDatos()) {
         Navigator.of(_context).popAndPushNamed("/homeview");
@@ -72,34 +61,21 @@ class LoginView extends StatelessWidget {
       return;
     }
 
-
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-
     final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
       idToken: googleAuth?.idToken,
     );
 
     try {
-
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-
-      print(userCredential.user?.displayName);
-
-
       if (await conexion.fbadmin.existenDatos()) {
         Navigator.of(_context).popAndPushNamed("/homeview");
       } else {
         Navigator.of(_context).popAndPushNamed("/perfilview");
       }
-
     } on FirebaseAuthException catch (e) {
-
-      print("Error de autenticación: ${e.message}");
       CustomDialog.show(_context, "Error de autenticación con Google");
     }
   }
@@ -107,62 +83,79 @@ class LoginView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _context = context;
-    // TODO: implement build
-
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Login'),
-          centerTitle: true,
-          shadowColor: Colors.white,
-          backgroundColor: Colors.deepPurple,
-        ),
-        backgroundColor: Colors.white,
-        body:
-        Center(
-          child: ConstrainedBox(constraints: BoxConstraints(
-            minWidth: 500,
-            minHeight: 700,
-            maxWidth: 1000,
-            maxHeight: 900,
+      appBar: AppBar(
+        title: const Text('Login'),
+        centerTitle: true,
+        shadowColor: Colors.white,
+        backgroundColor: Colors.deepPurple,
+      ),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: 300,
+            minHeight: 500,
+            maxWidth: 600,
+            maxHeight: 800,
           ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-
-              children: [
-                Text("Tfg BoardGames", style: TextStyle(fontSize: 25)),
-
-                Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                    child:  customTextField(tecUsername: usuarioControlador, oscuro: false, sHint: "introduzca su Nombre",)
-                ),
-
-                Padding(padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                    child:  customTextField(tecUsername: usuarioPassword, oscuro: true, sHint: "introduzca su Contraseña",)
-                ),
-
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CustomButton(onPressed: onClickAceptar, texto: 'aceptar',),
-                        CustomButton(onPressed: onClickRegistrar, texto: 'registrar',),
-                      ],
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            elevation: 5,
+            margin: EdgeInsets.all(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Tfg BoardGames", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: customTextField(
+                      tecUsername: usuarioControlador,
+                      oscuro: false,
+                      sHint: "Introduzca su Nombre",
                     ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: signInWithGoogle,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.blue, // Color del texto (blanco)
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: customTextField(
+                      tecUsername: usuarioPassword,
+                      oscuro: true,
+                      sHint: "Introduzca su Contraseña",
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      CustomButton(onPressed: onClickAceptar, texto: 'Aceptar'),
+                      CustomButton(onPressed: onClickRegistrar, texto: 'Registrar'),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: signInWithGoogle,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.red,
+                      onPrimary: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text('Acceder con Google'),
                     ),
-                  ],
-                ),
-
-              ],
-            ),),
-        )
+                    icon: Icon(Icons.login),
+                    label: Text('Acceder con Google', style: TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

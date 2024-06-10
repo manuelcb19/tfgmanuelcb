@@ -45,29 +45,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> conseguirUsuario() async {
-    print("Fetching user: " +
-        perfil.nombre +
-        perfil.shint +
-        perfil.id +
-        perfil.apellidos);
-
     FbUsuario usuario = await conexion.fbadmin.conseguirUsuario();
     setState(() {
       perfil = usuario;
     });
-
-    print("Fetched user: " +
-        perfil.nombre +
-        perfil.shint +
-        perfil.id +
-        perfil.apellidos);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('TableCalendar Example'),
+        title: Text('Calendario de Eventos'),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
       ),
       body: perfil.id != "id"
           ? Center(
@@ -94,8 +84,6 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   final TextEditingController _eventController = TextEditingController();
-
-  // Mapa de eventos, donde cada día está asociado con una lista de eventos
   Map<DateTime, List<Event>> _events = {};
 
   @override
@@ -103,15 +91,13 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
     super.initState();
     _selectedDay = _focusedDay;
     _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
-    _loadEventsFromFirebase(); // Cargar eventos desde Firebase al iniciar
+    _loadEventsFromFirebase();
   }
 
-  // Obtiene los eventos para un día específico
   List<Event> _getEventsForDay(DateTime day) {
     return _events[day] ?? [];
   }
 
-  // Añade un evento para un día específico
   void _addEvent(DateTime day, Event event) {
     setState(() {
       if (_events.containsKey(day)) {
@@ -122,7 +108,6 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
     });
   }
 
-  // Guarda todos los eventos en Firebase
   Future<void> _saveEventsToFirebase() async {
     final userEventsCollection = FirebaseFirestore.instance
         .collection('event')
@@ -137,7 +122,6 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
     }
   }
 
-  // Cargar eventos desde Firebase
   Future<void> _loadEventsFromFirebase() async {
     final userEventsCollection = FirebaseFirestore.instance
         .collection('event')
@@ -174,6 +158,30 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
           eventLoader: _getEventsForDay,
           calendarStyle: CalendarStyle(
             outsideDaysVisible: false,
+            todayDecoration: BoxDecoration(
+              color: Colors.orange,
+              shape: BoxShape.circle,
+            ),
+            selectedDecoration: BoxDecoration(
+              color: Colors.blue,
+              shape: BoxShape.circle,
+            ),
+            markerDecoration: BoxDecoration(
+              color: Colors.purple,
+              shape: BoxShape.circle,
+            ),
+          ),
+          headerStyle: HeaderStyle(
+            formatButtonVisible: false,
+            titleCentered: true,
+            titleTextStyle: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.deepPurple,
+            ),
+          ),
+          daysOfWeekStyle: DaysOfWeekStyle(
+            weekendStyle: TextStyle(color: Colors.red),
           ),
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
@@ -193,7 +201,11 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
             controller: _eventController,
             decoration: InputDecoration(
               labelText: 'Título del Evento',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
+              fillColor: Colors.white,
             ),
           ),
         ),
@@ -201,23 +213,25 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
         ElevatedButton(
           onPressed: () {
             if (_eventController.text.isNotEmpty) {
-              // Añade un evento al día seleccionado
               _addEvent(_selectedDay!, Event(_eventController.text));
-              // Actualiza la lista de eventos para el día seleccionado
               _selectedEvents.value = _getEventsForDay(_selectedDay!);
-              // Borra el texto del controlador del campo de texto
               _eventController.clear();
             }
           },
           child: Text('Añadir Evento'),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.deepPurple,
+          ),
         ),
         const SizedBox(height: 8.0),
         ElevatedButton(
           onPressed: () async {
-            // Guarda todos los eventos en Firebase
             await _saveEventsToFirebase();
           },
           child: Text('Guardar en Firebase'),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.deepPurple,
+          ),
         ),
         const SizedBox(height: 8.0),
         Expanded(
@@ -227,8 +241,16 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
               return ListView.builder(
                 itemCount: value.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text('${value[index].title}'),
+                  return Card(
+                    elevation: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      title: Text('${value[index].title}'),
+                      leading: Icon(Icons.event, color: Colors.deepPurple),
+                    ),
                   );
                 },
               );
@@ -241,7 +263,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
 
   @override
   void dispose() {
-    _eventController.dispose(); // Libera el controlador del campo de texto
+    _eventController.dispose();
     super.dispose();
   }
 }

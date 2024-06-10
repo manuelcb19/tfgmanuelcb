@@ -67,67 +67,74 @@ class _EstadisticasViewState extends State<Estadisticas> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Estadísticas'),
+        backgroundColor: Colors.deepPurple,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width,
+              minHeight: MediaQuery.of(context).size.height,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                buildStatisticCard(
+                  icon: Icons.summarize,
+                  label: 'Suma de Puntos de todos los juegos',
+                  value: '$sumaValores',
+                ),
+                buildStatisticCard(
+                  icon: Icons.list,
+                  label: 'Número total de partidas',
+                  value: '${partidasList.length}',
+                ),
+                buildStatisticCard(
+                  icon: Icons.calculate,
+                  label: 'Media de Puntuación',
+                  value: '${contadorPartidas > 0 ? (sumaValores / contadorPartidas).toStringAsFixed(2) : 0}',
+                ),
+                buildStatisticCard(
+                  icon: Icons.star,
+                  label: 'Puntuación más Alta',
+                  value: '$numeroMasGrande',
+                ),
+                buildStatisticCard(
+                  icon: Icons.person,
+                  label: 'Top winner',
+                  value: '$nombreGanador',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildStatisticCard({required IconData icon, required String label, required String value}) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.summarize),
-                  SizedBox(width: 8.0),
-                  Text('Suma de Puntos de todos los juegos: $sumaValores'),
-                ],
-              ),
+            Icon(icon, color: Colors.deepPurple),
+            SizedBox(width: 8.0),
+            Text(
+              '$label: ',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.list),
-                  SizedBox(width: 8.0),
-                  Text('Número total de partidas: ${partidasList.length}'),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.calculate),
-                  SizedBox(width: 8.0),
-                  Text('Media de Puntuación: ${contadorPartidas > 0 ? sumaValores / contadorPartidas : 0}'),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.star),
-                  SizedBox(width: 8.0),
-                  Text('Puntuación más Alta: $numeroMasGrande'),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person),
-                  SizedBox(width: 8.0),
-                  Text('Nombre de la persona que más Juegos ha ganado: $nombreGanador'),
-                ],
-              ),
+            Text(
+              value,
+              style: TextStyle(fontSize: 16),
             ),
           ],
         ),

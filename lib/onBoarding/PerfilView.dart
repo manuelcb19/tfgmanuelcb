@@ -47,25 +47,27 @@ class _PerfilViewState extends State<PerfilView> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Seleccionar Imagen'),
-          content: Column(
-            children: [
-              for (String url in imageUrls)
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      mostrarPredefinida = false;
-                      _selectedImageUrl = url;
-                    });
-                    Navigator.of(context).pop();
-                  },
-                  child: Image.network(
-                    url,
-                    height: 100, // Ajusta la altura según tus necesidades
-                    width: 100, // Ajusta el ancho según tus necesidades
-                    fit: BoxFit.cover,
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (String url in imageUrls)
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        mostrarPredefinida = false;
+                        _selectedImageUrl = url;
+                      });
+                      Navigator.of(context).pop();
+                    },
+                    child: Image.network(
+                      url,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -83,12 +85,9 @@ class _PerfilViewState extends State<PerfilView> {
           .get();
 
       if (imagenPerfilDoc.exists) {
-        // Obtén los datos del documento
         Map<String, dynamic> data = imagenPerfilDoc.data() ?? {};
 
-        // Itera sobre los valores del documento
         data.forEach((key, value) {
-          // Verifica si el valor es de tipo String y no está vacío
           if (value is String && value.isNotEmpty) {
             imageUrls.add(value);
           }
@@ -156,7 +155,6 @@ class _PerfilViewState extends State<PerfilView> {
                 Map<int, String> diccionario = await conexion.httpAdmin
                     .obtenerDiccionarioDeIds(nombreJuego);
 
-                // Muestra una lista de IDs y permite al usuario seleccionar uno
                 String? selectedIdFromList = await showDialog<String>(
                   context: context,
                   builder: (BuildContext context) {
@@ -176,7 +174,6 @@ class _PerfilViewState extends State<PerfilView> {
                                     listaJuegos.add(juego);
                                   });
                                 }
-                                //await conexion.fbadmin.agregarJuegoDeMesaAlUsuario(id.toString(), diccionario[id]!);
                                 Navigator.of(context).pop(id.toString());
                               },
                             ),
@@ -226,76 +223,86 @@ class _PerfilViewState extends State<PerfilView> {
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: 500,
-            minHeight: 700,
-            maxWidth: 1000,
-            maxHeight: 900,
-          ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                child: customTextField(
-                  tecUsername: tecNombre,
-                  oscuro: false,
-                  sHint: "Introduzca su usuario",
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                margin: EdgeInsets.all(20),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      customTextField(
+                        tecUsername: tecNombre,
+                        oscuro: false,
+                        sHint: "Introduzca su usuario",
+                      ),
+                      SizedBox(height: 16),
+                      customTextField(
+                        tecUsername: tecApellidos,
+                        oscuro: false,
+                        sHint: "Introduzca su apellido",
+                      ),
+                      SizedBox(height: 16),
+                      if (!mostrarPredefinida)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            _selectedImageUrl,
+                            width: 300,
+                            height: 450,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _showImageDialog(context);
+                        },
+                        child: Text('Seleccionar Imagen de perfil'),
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showSearchDialog(context, tecNombre);
+                        },
+                        child: Text('Añadir Juegos de Mesa'),
+                      ),
+                      SizedBox(height: 16),
+                      CustomButton(texto: "Aceptar", onPressed: onClickAceptar),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                child: customTextField(
-                  tecUsername: tecApellidos,
-                  oscuro: false,
-                  sHint: "Introduzca su apellidos",
-                ),
-              ),
-              Column(
-                children: [
-                  if (!mostrarPredefinida)
-                    Image.network(
-                      _selectedImageUrl,
-                      width: 300,
-                      height: 450,
-                    ),
-                ],
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _showImageDialog(context);
-                    },
-                    child: Text('Seleccionar Imagen de perfil'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showSearchDialog(context, tecNombre);
-                    },
-                    child: Text('Añadir Juegos de Mesa'),
-                  ),
-                  SizedBox(height: 16), // Espacio vertical
-                  CustomButton(texto: "aceptar", onPressed: onClickAceptar),
-                ],
-              ),
-              SizedBox(height: 20), // Espacio vertical
-              // Aquí utilizamos un ListView con scroll horizontal
+              SizedBox(height: 20),
               Container(
-                height: 100, // Ajusta la altura según sea necesario
+                height: 150,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
                     for (BoardGame elemento in listaJuegos)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
                         child: Container(
-                          width: 150, // Ajusta el ancho según sea necesario
-                          color: Colors.grey[300],
+                          width: 150,
+                          padding: EdgeInsets.all(8),
                           alignment: Alignment.center,
-                          child: Text(elemento.name ?? ""),
+                          child: Text(
+                            elemento.name ?? "",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                   ],
