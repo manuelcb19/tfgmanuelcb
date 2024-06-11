@@ -32,9 +32,11 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     conseguirUsuario();
     ListaJuegosdrag = [];
-    _initData();
-    cargarDatosDesdeCache();
+
     _loadingFuture = _simulateLoading();
+    setState(() {
+      _initData();
+    });
   }
 
   Future<void> _simulateLoading() async {
@@ -46,15 +48,7 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       this.perfil = perfil;
     });
-  }
-
-  Future<void> cargarDatosDesdeCache() async {
-    List<FbBoardGame> cachedGames = await conexion.loadAllFbJuegos();
-    if (cachedGames.isNotEmpty) {
-      for (var juego in cachedGames) {
-        print("${juego.id}: ${juego.nombre}");
-      }
-    }
+    _initData();
   }
 
   Future<void> recargarCache() async {
@@ -66,12 +60,14 @@ class _HomeViewState extends State<HomeView> {
     List<FbBoardGame> downloadedGamesCache = await conexion.loadAllFbJuegos();
     List<FbBoardGame> dowloadByFirebase = await conexion.fbadmin.descargarJuegos();
     List<FbBoardGame> downloadedGames;
-    recargarCache();
+
     if (downloadedGamesCache.length == dowloadByFirebase.length) {
-      downloadedGames = await conexion.loadAllFbJuegos();
+      downloadedGames = downloadedGamesCache;
     } else {
-      downloadedGames = await conexion.fbadmin.descargarJuegos();
+      downloadedGames = dowloadByFirebase;
     }
+
+    recargarCache();
 
     int compararPorOrden(FbBoardGame a, FbBoardGame b) {
       int ordenA = a.orden ?? 0;
