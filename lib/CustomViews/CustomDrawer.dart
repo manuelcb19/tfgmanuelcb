@@ -55,6 +55,11 @@ class CustomDrawer extends StatelessWidget {
                   onTap: () => onItemTap!(3),
                 ),
                 _buildDrawerItem(
+                  icon: Icons.store,
+                  text: 'Estadisticas Globales',
+                  onTap: () => onItemTap!(6),
+                ),
+                _buildDrawerItem(
                   icon: Icons.exit_to_app,
                   text: 'Cerrar Sesion',
                   onTap: () => onItemTap!(0),

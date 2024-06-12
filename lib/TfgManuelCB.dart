@@ -12,9 +12,11 @@ import 'package:tfgmanuelcb/Splash/SplashViewWeb.dart';
 import 'package:tfgmanuelcb/onBoarding/PerfilView.dart';
 import 'package:tfgmanuelcb/onBoarding/RegisterView.dart';
 
+import 'Home/BuscarJuegosUsuarioScreen.dart';
 import 'Home/CalendarScreen.dart';
 import 'Home/EditDatos.dart';
 import 'Home/Estadisticas.dart';
+import 'Home/EstadisticasGlobales.dart';
 import 'Home/MapaView.dart';
 import 'Splash/SplashView.dart';
 import 'onBoarding/LoginView.dart';
@@ -44,6 +46,8 @@ class TfgManuelCB extends StatelessWidget{
           '/estadisticas':(context) => Estadisticas(),
           '/editdatos':(context) => EditDatos(),
           '/calendarscreen':(context) => CalendarScreen(),
+          '/estadisticasglobales':(context) => EstadisticasGlobales(),
+          '/buscarjuegosusuarioscreen':(context) => BuscarJuegosUsuarioScreen(),
         },
         initialRoute: '/splashviewweb',
         debugShowCheckedModeBanner: false,
@@ -65,6 +69,8 @@ class TfgManuelCB extends StatelessWidget{
           '/estadisticas':(context) => Estadisticas(),
           '/editdatos':(context) => EditDatos(),
           '/calendarscreen':(context) => CalendarScreen(),
+          '/estadisticasglobales':(context) => EstadisticasGlobales(),
+          '/buscarjuegosusuarioscreen':(context) => BuscarJuegosUsuarioScreen()
         },
         initialRoute: '/splashview',
         debugShowCheckedModeBanner: false,

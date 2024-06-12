@@ -48,7 +48,110 @@ class FirebaseAdmin {
       return 0;
     }
   }
+  Future<Map<String, dynamic>> obtenerEstadisticasGlobales() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    CollectionReference juegosRef = db.collection("ColeccionJuegos").doc(userId).collection("juegos");
 
+    QuerySnapshot juegosSnapshot = await juegosRef.get();
+    List<QueryDocumentSnapshot> juegosDocs = juegosSnapshot.docs;
+
+    if (juegosDocs.isEmpty) {
+      return {'error': 'No hay datos disponibles'};
+    }
+
+    Map<String, dynamic> estadisticas = {
+      'juegoConMasPartidas': '',
+      'maxPartidas': 0,
+      'juegoConMasPuntos': '',
+      'maxPuntos': 0,
+      'juegoConMasVictorias': '',
+      'maxVictorias': 0,
+      'juegoConMenosPartidas': '',
+      'minPartidas': double.maxFinite.toInt(),
+      'juegoConMenosPuntos': '',
+      'minPuntos': double.maxFinite.toInt(),
+    };
+
+    List<Future<Map<String, dynamic>>> futures = juegosDocs.map((juegoDoc) async {
+      String juegoNombre = juegoDoc['nombre'];
+      var estadisticasJuego = await _calcularEstadisticasJuego(juegosRef, juegoDoc.id);
+      return {
+        'juegoNombre': juegoNombre,
+        'estadisticasJuego': estadisticasJuego,
+      };
+    }).toList();
+
+    List<Map<String, dynamic>> resultados = await Future.wait(futures);
+
+    for (var resultado in resultados) {
+      String juegoNombre = resultado['juegoNombre'];
+      var estadisticasJuego = resultado['estadisticasJuego'];
+
+      if (estadisticasJuego['numPartidas'] > estadisticas['maxPartidas']) {
+        estadisticas['maxPartidas'] = estadisticasJuego['numPartidas'];
+        estadisticas['juegoConMasPartidas'] = juegoNombre;
+      }
+
+      if (estadisticasJuego['totalPuntos'] > estadisticas['maxPuntos']) {
+        estadisticas['maxPuntos'] = estadisticasJuego['totalPuntos'];
+        estadisticas['juegoConMasPuntos'] = juegoNombre;
+      }
+
+      if (estadisticasJuego['totalVictorias'] > estadisticas['maxVictorias']) {
+        estadisticas['maxVictorias'] = estadisticasJuego['totalVictorias'];
+        estadisticas['juegoConMasVictorias'] = juegoNombre;
+      }
+
+      if (estadisticasJuego['numPartidas'] < estadisticas['minPartidas']) {
+        estadisticas['minPartidas'] = estadisticasJuego['numPartidas'];
+        estadisticas['juegoConMenosPartidas'] = juegoNombre;
+      }
+
+      if (estadisticasJuego['totalPuntos'] < estadisticas['minPuntos']) {
+        estadisticas['minPuntos'] = estadisticasJuego['totalPuntos'];
+        estadisticas['juegoConMenosPuntos'] = juegoNombre;
+      }
+    }
+
+    return estadisticas;
+  }
+
+  Future<List<FbBoardGame>> buscarJuegosDeUsuario(String userId) async {
+    List<FbBoardGame> juegos = [];
+    QuerySnapshot<Map<String, dynamic>> juegosSnapshot = await db
+        .collection("ColeccionJuegos")
+        .doc(userId)
+        .collection("juegos")
+        .get();
+
+    juegosSnapshot.docs.forEach((juegoDoc) {
+      FbBoardGame juego = FbBoardGame.fromFirestore(juegoDoc, null);
+      juegos.add(juego);
+    });
+
+    return juegos;
+  }
+
+  Future<Map<String, dynamic>> _calcularEstadisticasJuego(CollectionReference juegosRef, String juegoId) async {
+    CollectionReference partidasRef = juegosRef.doc(juegoId).collection("partidas");
+
+    QuerySnapshot partidasSnapshot = await partidasRef.get();
+    int numPartidas = partidasSnapshot.size;
+    int totalPuntos = 0;
+    int totalVictorias = 0;
+
+    for (var partidaDoc in partidasSnapshot.docs) {
+      var data = partidaDoc.data() as Map<String, dynamic>;
+      totalPuntos += (data['puntos'] as num?)?.toInt() ?? 0;
+      totalVictorias += (data['victorias'] as num?)?.toInt() ?? 0;
+    }
+
+    return {
+      'numPartidas': numPartidas,
+      'totalPuntos': totalPuntos,
+      'totalVictorias': totalVictorias,
+    };
+  }
   Future<void> agregarJuegosDeMesaAlUsuarioLista(List<BoardGame> lista) async {
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;

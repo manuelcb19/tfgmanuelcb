@@ -225,6 +225,8 @@ class _HomeViewState extends State<HomeView> {
       Navigator.of(context).pushNamed('/editdatos', arguments: {});
     } else if (indice == 5) {
       Navigator.of(context).pushNamed('/calendarscreen', arguments: {});
+    } else if (indice == 6) {
+      Navigator.of(context).pushNamed('/buscarjuegosusuarioscreen', arguments: {});
     }
   }
 
