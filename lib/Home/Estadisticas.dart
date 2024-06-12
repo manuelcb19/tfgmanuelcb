@@ -83,7 +83,7 @@ class _EstadisticasViewState extends State<Estadisticas> {
               children: [
                 buildStatisticCard(
                   icon: Icons.summarize,
-                  label: 'Suma de Puntos de todos los juegos',
+                  label: 'Suma de Puntos total',
                   value: '$sumaValores',
                 ),
                 buildStatisticCard(

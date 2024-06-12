@@ -46,6 +46,7 @@ class TfgManuelCB extends StatelessWidget{
           '/calendarscreen':(context) => CalendarScreen(),
         },
         initialRoute: '/splashviewweb',
+        debugShowCheckedModeBanner: false,
       );
     }
     else{

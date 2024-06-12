@@ -86,6 +86,37 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
     );
   }
 
+  void _showContextMenu(int index, int orden) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.edit),
+              title: Text('Modificar partida'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _showDetailsDialog(orden, descargarPartidas);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete),
+              title: Text('Borrar partida'),
+              onTap: () {
+                Navigator.of(context).pop();
+                conexion.fbadmin.eliminarPartida(juego, orden);
+                Future.delayed(Duration(seconds: 2), () {
+                  descargarPartidas();
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
@@ -160,7 +191,7 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 8), // Espacio entre el título de la partida y los detalles de los jugadores
+                        SizedBox(height: 8),
                         ...partidas.entries.map((e) {
                           return Text('- ${e.key}: ${e.value}');
                         }).toList(),
@@ -168,6 +199,9 @@ class _DetallesJuegoScreenState extends State<DetallesJuegoScreen> {
                     ),
                     onTap: () {
                       _showDetailsDialog(partidasList[index]['orden'], descargarPartidas);
+                    },
+                    onLongPress: () {
+                      _showContextMenu(index, partidasList[index]['orden']);
                     },
                   ),
                 );

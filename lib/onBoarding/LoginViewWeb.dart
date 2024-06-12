@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../CustomViews/CustomButton.dart';
 import '../CustomViews/CustomDialog.dart';
@@ -50,6 +51,35 @@ class LoginViewWeb extends StatelessWidget {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+      return;
+    }
+
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      if (await conexion.fbadmin.existenDatos()) {
+        Navigator.of(_context).popAndPushNamed("/homeview");
+      } else {
+        Navigator.of(_context).popAndPushNamed("/perfilview");
+      }
+    } on FirebaseAuthException catch (e) {
+      CustomDialog.show(_context, "Error de autenticación con Google");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _context = context;
@@ -60,64 +90,67 @@ class LoginViewWeb extends StatelessWidget {
         shadowColor: Colors.white,
         backgroundColor: Colors.deepPurple,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/20867.jpg'),
-            fit: BoxFit.cover,
+      backgroundColor: Colors.white,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: 300,
+            minHeight: 500,
+            maxWidth: 600,
+            maxHeight: 800,
           ),
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: 300,
-              minHeight: 500,
-              maxWidth: 600,
-              maxHeight: 800,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
             ),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              elevation: 5,
-              margin: EdgeInsets.all(20),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Tfg BoardGames",
-                        style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple)),
-                    SizedBox(height: 30),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: customTextField(
-                        tecUsername: usuarioControlador,
-                        oscuro: false,
-                        sHint: "Introduzca su Nombre",
+            elevation: 5,
+            margin: EdgeInsets.all(20),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Tfg BoardGames", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: customTextField(
+                      tecUsername: usuarioControlador,
+                      oscuro: false,
+                      sHint: "Introduzca su Nombre",
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: customTextField(
+                      tecUsername: usuarioPassword,
+                      oscuro: true,
+                      sHint: "Introduzca su Contraseña",
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      CustomButton(onPressed: onClickAceptar, texto: 'Aceptar'),
+                      CustomButton(onPressed: onClickRegistrar, texto: 'Registrar'),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton.icon(
+                    onPressed: signInWithGoogle,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      onPrimary: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: customTextField(
-                        tecUsername: usuarioPassword,
-                        oscuro: true,
-                        sHint: "Introduzca su Contraseña",
-                      ),
-                    ),
-                    SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        CustomButton(onPressed: onClickAceptar, texto: 'Aceptar'),
-                        CustomButton(onPressed: onClickRegistrar, texto: 'Registrar'),
-                      ],
-                    ),
-                  ],
-                ),
+                    icon: Icon(Icons.login),
+                    label: Text('Acceder con Google', style: TextStyle(fontSize: 16)),
+                  ),
+                ],
               ),
             ),
           ),

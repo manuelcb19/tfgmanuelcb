@@ -32,7 +32,7 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     conseguirUsuario();
     ListaJuegosdrag = [];
-
+    fHomeViewMenuBar(1);
     _loadingFuture = _simulateLoading();
     setState(() {
       _initData();
@@ -57,15 +57,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Future<void> _initData() async {
-    List<FbBoardGame> downloadedGamesCache = await conexion.loadAllFbJuegos();
-    List<FbBoardGame> dowloadByFirebase = await conexion.fbadmin.descargarJuegos();
-    List<FbBoardGame> downloadedGames;
-
-    if (downloadedGamesCache.length == dowloadByFirebase.length) {
-      downloadedGames = downloadedGamesCache;
-    } else {
-      downloadedGames = dowloadByFirebase;
-    }
+    List<FbBoardGame> downloadedGames = await DataHolder().obtenerJuegosConOrdenCorrecto();
 
     recargarCache();
 
@@ -140,6 +132,7 @@ class _HomeViewState extends State<HomeView> {
     setState(() {
       ListaJuegosdrag = lists;
     });
+
   }
 
   void _onItemReorder(int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {

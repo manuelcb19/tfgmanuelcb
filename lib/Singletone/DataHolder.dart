@@ -15,25 +15,24 @@ class DataHolder {
 
   FbBoardGame? coleccionJuego;
   late FbBoardGame juego;
-  String sNombre="TfgManuelCB";
+  String sNombre = "TfgManuelCB";
   FirebaseFirestore db = FirebaseFirestore.instance;
   DialogClass dialogclass = DialogClass();
-  FirebaseAdmin fbadmin=FirebaseAdmin();
-  HttpAdmin httpAdmin=HttpAdmin();
+  FirebaseAdmin fbadmin = FirebaseAdmin();
+  HttpAdmin httpAdmin = HttpAdmin();
   late PlatformAdmin platformAdmin;
+
   DataHolder._internal() {
   }
-  void initDataHolder(){
 
-
+  void initDataHolder() {
   }
 
-  factory DataHolder(){
+  factory DataHolder() {
     return _dataHolder;
   }
 
-
-  void saveAllJuegosInCache(List<FbBoardGame> juegos) async {
+  Future<void> saveAllJuegosInCache(List<FbBoardGame> juegos) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
@@ -76,6 +75,41 @@ class DataHolder {
     return juegos;
   }
 
+  Future<void> clearCache() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> keysToDelete = prefs.getKeys().where((key) => key.startsWith('fbboardgame_')).toList();
+
+    for (var key in keysToDelete) {
+      await prefs.remove(key);
+    }
+  }
+
+  Future<List<FbBoardGame>> obtenerJuegosConOrdenCorrecto() async {
+    List<FbBoardGame> downloadedGamesCache = await loadAllFbJuegos();
+    List<FbBoardGame> downloadedByFirebase = await fbadmin.descargarJuegos();
+
+    downloadedGamesCache.sort((a, b) => a.orden!.compareTo(b.orden!));
+    downloadedByFirebase.sort((a, b) => a.orden!.compareTo(b.orden!));
+
+    bool esOrdenIgual = true;
+    if (downloadedGamesCache.length == downloadedByFirebase.length) {
+      for (int i = 0; i < downloadedGamesCache.length; i++) {
+        if (downloadedGamesCache[i].orden != downloadedByFirebase[i].orden) {
+          esOrdenIgual = false;
+          break;
+        }
+      }
+    } else {
+      esOrdenIgual = false;
+    }
+
+    if (esOrdenIgual) {
+      return downloadedGamesCache;
+    } else {
+      return downloadedByFirebase;
+    }
+  }
+
   Future<void> recargarCacheDeJuegos(List<FbBoardGame> juegos) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -95,8 +129,9 @@ class DataHolder {
       await prefs.setString('fbboardgame_surlimg_${juego.id}', juego.sUrlImg ?? "");
     }
   }
-  void initPlatformAdmin(BuildContext context){
-    platformAdmin=PlatformAdmin(context: context);
+
+  void initPlatformAdmin(BuildContext context) {
+    platformAdmin = PlatformAdmin(context: context);
   }
 }
 

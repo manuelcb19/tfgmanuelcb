@@ -119,7 +119,30 @@ class FirebaseAdmin {
     }
   }
 
+  Future<List<String>> obtenerImagenesDesdeFirebase() async {
+    List<String> imageUrls = [];
+    FirebaseFirestore db = FirebaseFirestore.instance;
 
+    try {
+      DocumentSnapshot<Map<String, dynamic>> imagenPerfilDoc = await db
+          .collection("Imagenes")
+          .doc("imagenperfil")
+          .get();
+
+      if (imagenPerfilDoc.exists) {
+        Map<String, dynamic> data = imagenPerfilDoc.data() ?? {};
+        data.forEach((key, value) {
+          if (value is String && value.isNotEmpty) {
+            imageUrls.add(value);
+          }
+        });
+      }
+      return imageUrls;
+    } catch (e) {
+      print("Error al obtener imágenes desde Firebase: $e");
+      return [];
+    }
+  }
 
   Future<void> agregarJuegoDeMesaAlUsuario(String idJuego, String nombre) async {
     try {
@@ -314,6 +337,30 @@ class FirebaseAdmin {
     return partidasList;
   }
 
+  Future<void> eliminarPartida(FbBoardGame? juego, int orden) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      QuerySnapshot querySnapshot = await db
+          .collection("ColeccionJuegos")
+          .doc(userId)
+          .collection("juegos")
+          .doc(juego?.id.toString())
+          .collection("partidas")
+          .where("orden", isEqualTo: orden)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+        print("Partida con orden $orden eliminada con éxito");
+      } else {
+        print("No se encontró la partida con el orden dado para eliminar");
+      }
+    } catch (e) {
+      print("Error al eliminar la partida: $e");
+    }
+  }
 
 
   Future<FbUsuario> conseguirUsuario() async {

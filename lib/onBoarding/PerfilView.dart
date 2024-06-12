@@ -287,21 +287,26 @@ class _PerfilViewState extends State<PerfilView> {
                   scrollDirection: Axis.horizontal,
                   children: [
                     for (BoardGame elemento in listaJuegos)
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                        child: Container(
-                          width: 150,
-                          padding: EdgeInsets.all(8),
-                          alignment: Alignment.center,
-                          child: Text(
-                            elemento.name ?? "",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                      GestureDetector(
+                        onLongPress: () {
+                          _showDeleteConfirmationDialog(context, elemento);
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                          child: Container(
+                            width: 120,
+                            padding: EdgeInsets.all(8),
+                            alignment: Alignment.center,
+                            child: Text(
+                              elemento.name ?? "",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
@@ -312,6 +317,35 @@ class _PerfilViewState extends State<PerfilView> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context, BoardGame game) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirmación'),
+          content: Text('¿Desea borrar este juego de la lista?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  listaJuegos.remove(game);
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Aceptar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

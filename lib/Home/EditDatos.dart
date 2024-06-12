@@ -50,7 +50,7 @@ class _EditDatosState extends State<EditDatos> {
   }
 
   Future<void> _showImageDialog(BuildContext context) async {
-    List<String> imageUrls = await obtenerImagenesDesdeFirebase();
+    List<String> imageUrls = await conexion.fbadmin.obtenerImagenesDesdeFirebase();
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -83,30 +83,7 @@ class _EditDatosState extends State<EditDatos> {
     );
   }
 
-  Future<List<String>> obtenerImagenesDesdeFirebase() async {
-    List<String> imageUrls = [];
-    FirebaseFirestore db = FirebaseFirestore.instance;
 
-    try {
-      DocumentSnapshot<Map<String, dynamic>> imagenPerfilDoc = await db
-          .collection("Imagenes")
-          .doc("imagenperfil")
-          .get();
-
-      if (imagenPerfilDoc.exists) {
-        Map<String, dynamic> data = imagenPerfilDoc.data() ?? {};
-        data.forEach((key, value) {
-          if (value is String && value.isNotEmpty) {
-            imageUrls.add(value);
-          }
-        });
-      }
-      return imageUrls;
-    } catch (e) {
-      print("Error al obtener imágenes desde Firebase: $e");
-      return [];
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -218,7 +218,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
               _eventController.clear();
             }
           },
-          child: Text('Añadir Evento'),
+          child: Text('Añadir dia'),
           style: ElevatedButton.styleFrom(
             primary: Colors.deepPurple,
           ),
@@ -228,7 +228,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
           onPressed: () async {
             await _saveEventsToFirebase();
           },
-          child: Text('Guardar en Firebase'),
+          child: Text('Guardar Cambios'),
           style: ElevatedButton.styleFrom(
             primary: Colors.deepPurple,
           ),
