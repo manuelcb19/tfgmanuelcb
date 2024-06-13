@@ -32,8 +32,8 @@ class _EditDatosState extends State<EditDatos> {
         this.perfil = perfil;
         tecNombre.text = perfil.nombre;
         tecApellidos.text = perfil.apellidos;
-        _selectedImageUrl = perfil.shint; // Asume que 'shint' es la URL de la imagen
-        mostrarPredefinida = false; // Ocultar imagen predefinida si ya hay una imagen de perfil
+        _selectedImageUrl = perfil.shint;
+        mostrarPredefinida = false;
       });
     } catch (e) {
       print("Error al obtener el perfil del usuario: $e");

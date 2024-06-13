@@ -51,12 +51,12 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 _buildDrawerItem(
                   icon: Icons.store,
-                  text: 'Consultar Tienda mas Cercana',
+                  text: 'Tienda mas Cercana(beta)',
                   onTap: () => onItemTap!(3),
                 ),
                 _buildDrawerItem(
-                  icon: Icons.store,
-                  text: 'Estadisticas Globales',
+                  icon: Icons.search,
+                  text: 'Buscar Jugador(beta)',
                   onTap: () => onItemTap!(6),
                 ),
                 _buildDrawerItem(

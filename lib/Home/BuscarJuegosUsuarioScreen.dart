@@ -26,7 +26,7 @@ class _BuscarJuegosUsuarioScreenState
 
     try {
       List<FbBoardGame> resultado =
-      await firebaseAdmin.buscarJuegosDeUsuario(selectedId!); // Utiliza el ID seleccionado
+      await firebaseAdmin.buscarJuegosDeUsuario(selectedId!);
       setState(() {
         juegos = resultado;
         isLoading = false;
