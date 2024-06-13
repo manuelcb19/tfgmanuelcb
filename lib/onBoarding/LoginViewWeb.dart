@@ -137,19 +137,6 @@ class LoginViewWeb extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: signInWithGoogle,
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.blue,
-                      onPrimary: Colors.white,
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    icon: Icon(Icons.login),
-                    label: Text('Acceder con Google', style: TextStyle(fontSize: 16)),
-                  ),
                 ],
               ),
             ),
