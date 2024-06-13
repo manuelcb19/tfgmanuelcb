@@ -200,7 +200,7 @@ class _PartidasScreenState extends State<PartidasScreen> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Agregar a lista temporal'),
+              child: Text('Agregar'),
             ),
           ],
         );

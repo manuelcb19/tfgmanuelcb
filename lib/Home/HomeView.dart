@@ -30,25 +30,34 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    conseguirUsuario();
-    ListaJuegosdrag = [];
-    fHomeViewMenuBar(1);
-    _loadingFuture = _simulateLoading();
-    setState(() {
-      _initData();
-    });
+    _loadingFuture = _initializeData();
   }
 
-  Future<void> _simulateLoading() async {
-    await Future.delayed(Duration(seconds: 2));
+  Future<void> _initializeData() async {
+    await recargarCache();
+    await conseguirUsuario();
+    await cargarDatosDesdeCache();
+    await cargar();
+  }
+
+  Future<void> cargar() async {
+    await _initData();
+  }
+
+  Future<void> cargarDatosDesdeCache() async {
+    List<FbBoardGame> cachedGames = await conexion.loadAllFbJuegos();
+    if (cachedGames.isNotEmpty) {
+      for (var juego in cachedGames) {
+        print("${juego.id}: ${juego.nombre}");
+      }
+    }
   }
 
   Future<void> conseguirUsuario() async {
-    FbUsuario perfil = await conexion.fbadmin.conseguirUsuario();
+    FbUsuario usuario = await conexion.fbadmin.conseguirUsuario();
     setState(() {
-      this.perfil = perfil;
+      perfil = usuario;
     });
-    _initData();
   }
 
   Future<void> recargarCache() async {
@@ -58,8 +67,6 @@ class _HomeViewState extends State<HomeView> {
 
   Future<void> _initData() async {
     List<FbBoardGame> downloadedGames = await DataHolder().obtenerJuegosConOrdenCorrecto();
-
-    recargarCache();
 
     int compararPorOrden(FbBoardGame a, FbBoardGame b) {
       int ordenA = a.orden ?? 0;
@@ -87,7 +94,7 @@ class _HomeViewState extends State<HomeView> {
                         ? ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.network(
-                        juego.sUrlImg,
+                        juego.sUrlImg!,
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
@@ -127,12 +134,11 @@ class _HomeViewState extends State<HomeView> {
       ),
     ];
 
-    conexion.saveAllJuegosInCache(downloadedGames);
-
     setState(() {
       ListaJuegosdrag = lists;
     });
 
+    conexion.saveAllJuegosInCache(downloadedGames);
   }
 
   void _onItemReorder(int oldItemIndex, int oldListIndex, int newItemIndex, int newListIndex) {

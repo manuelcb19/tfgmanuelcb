@@ -61,8 +61,8 @@ class _PerfilViewState extends State<PerfilView> {
                     },
                     child: Image.network(
                       url,
-                      height: 100,
-                      width: 100,
+                      height: 50, // Reduced height
+                      width: 50,  // Reduced width
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -133,18 +133,20 @@ class _PerfilViewState extends State<PerfilView> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Buscar Juego'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Ingrese el nombre del juego',
-                  contentPadding: EdgeInsets.all(16.0),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Ingrese el nombre del juego',
+                    contentPadding: EdgeInsets.all(16.0),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -160,24 +162,26 @@ class _PerfilViewState extends State<PerfilView> {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: Text('Lista de IDs'),
-                      content: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (int id in diccionario.keys)
-                            ListTile(
-                              title: Text(diccionario[id]!),
-                              onTap: () async {
-                                BoardGame? juego = await conexion.fbadmin.ConsultarJuego(id.toString());
-                                if (juego != null) {
-                                  setState(() {
-                                    listaJuegos.add(juego);
-                                  });
-                                }
-                                Navigator.of(context).pop(id.toString());
-                              },
-                            ),
-                        ],
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (int id in diccionario.keys)
+                              ListTile(
+                                title: Text(diccionario[id]!),
+                                onTap: () async {
+                                  BoardGame? juego = await conexion.fbadmin.ConsultarJuego(id.toString());
+                                  if (juego != null) {
+                                    setState(() {
+                                      listaJuegos.add(juego);
+                                    });
+                                  }
+                                  Navigator.of(context).pop(id.toString());
+                                },
+                              ),
+                          ],
+                        ),
                       ),
                       actions: [
                         TextButton(
@@ -255,8 +259,8 @@ class _PerfilViewState extends State<PerfilView> {
                           borderRadius: BorderRadius.circular(8.0),
                           child: Image.network(
                             _selectedImageUrl,
-                            width: 300,
-                            height: 450,
+                            width: 150, // Reduced width
+                            height: 225, // Reduced height
                             fit: BoxFit.cover,
                           ),
                         ),

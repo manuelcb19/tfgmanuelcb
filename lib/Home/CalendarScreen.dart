@@ -148,116 +148,122 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TableCalendar<Event>(
-          firstDay: DateTime.utc(2010, 10, 16),
-          lastDay: DateTime.utc(2030, 3, 14),
-          focusedDay: _focusedDay,
-          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-          eventLoader: _getEventsForDay,
-          calendarStyle: CalendarStyle(
-            outsideDaysVisible: false,
-            todayDecoration: BoxDecoration(
-              color: Colors.orange,
-              shape: BoxShape.circle,
-            ),
-            selectedDecoration: BoxDecoration(
-              color: Colors.blue,
-              shape: BoxShape.circle,
-            ),
-            markerDecoration: BoxDecoration(
-              color: Colors.purple,
-              shape: BoxShape.circle,
-            ),
-          ),
-          headerStyle: HeaderStyle(
-            formatButtonVisible: false,
-            titleCentered: true,
-            titleTextStyle: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
-            ),
-          ),
-          daysOfWeekStyle: DaysOfWeekStyle(
-            weekendStyle: TextStyle(color: Colors.red),
-          ),
-          onDaySelected: (selectedDay, focusedDay) {
-            setState(() {
-              _selectedDay = selectedDay;
-              _focusedDay = focusedDay;
-            });
-            _selectedEvents.value = _getEventsForDay(selectedDay);
-          },
-          onPageChanged: (focusedDay) {
-            _focusedDay = focusedDay;
-          },
-        ),
-        const SizedBox(height: 8.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextField(
-            controller: _eventController,
-            decoration: InputDecoration(
-              labelText: 'Título del Evento',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            TableCalendar<Event>(
+              firstDay: DateTime.utc(2010, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: _getEventsForDay,
+              calendarStyle: CalendarStyle(
+                outsideDaysVisible: false,
+                todayDecoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+                markerDecoration: BoxDecoration(
+                  color: Colors.purple,
+                  shape: BoxShape.circle,
+                ),
               ),
-              filled: true,
-              fillColor: Colors.white,
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
+              ),
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekendStyle: TextStyle(color: Colors.red),
+              ),
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  _selectedDay = selectedDay;
+                  _focusedDay = focusedDay;
+                });
+                _selectedEvents.value = _getEventsForDay(selectedDay);
+              },
+              onPageChanged: (focusedDay) {
+                _focusedDay = focusedDay;
+              },
             ),
-          ),
+            const SizedBox(height: 8.0),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextField(
+                controller: _eventController,
+                decoration: InputDecoration(
+                  labelText: 'Título del Evento',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            ElevatedButton(
+              onPressed: () {
+                if (_eventController.text.isNotEmpty) {
+                  _addEvent(_selectedDay!, Event(_eventController.text));
+                  _selectedEvents.value = _getEventsForDay(_selectedDay!);
+                  _eventController.clear();
+                }
+              },
+              child: Text('Añadir Evento'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.deepPurple,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            ElevatedButton(
+              onPressed: () async {
+                await _saveEventsToFirebase();
+              },
+              child: Text('Guardar Cambios'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.deepPurple,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            ValueListenableBuilder<List<Event>>(
+              valueListenable: _selectedEvents,
+              builder: (context, value, _) {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: value.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      elevation: 4,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        title: Text('${value[index].title}'),
+                        leading: Icon(Icons.event, color: Colors.deepPurple),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
-        const SizedBox(height: 8.0),
-        ElevatedButton(
-          onPressed: () {
-            if (_eventController.text.isNotEmpty) {
-              _addEvent(_selectedDay!, Event(_eventController.text));
-              _selectedEvents.value = _getEventsForDay(_selectedDay!);
-              _eventController.clear();
-            }
-          },
-          child: Text('Añadir dia'),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.deepPurple,
-          ),
-        ),
-        const SizedBox(height: 8.0),
-        ElevatedButton(
-          onPressed: () async {
-            await _saveEventsToFirebase();
-          },
-          child: Text('Guardar Cambios'),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.deepPurple,
-          ),
-        ),
-        const SizedBox(height: 8.0),
-        Expanded(
-          child: ValueListenableBuilder<List<Event>>(
-            valueListenable: _selectedEvents,
-            builder: (context, value, _) {
-              return ListView.builder(
-                itemCount: value.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ListTile(
-                      title: Text('${value[index].title}'),
-                      leading: Icon(Icons.event, color: Colors.deepPurple),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 
