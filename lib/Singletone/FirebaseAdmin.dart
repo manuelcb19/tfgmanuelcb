@@ -175,36 +175,29 @@ class FirebaseAdmin {
   }
 
   Future<void> actualizarOrdenJuegos(Map<String, int> juegosOrdenados) async {
-    // Descargar los juegos de Firebase y construir un mapa de nombre de juego a ID de juego
     List<FbBoardGame> juegosFirebase = await descargarJuegos();
 
-    // Obtener el ID del usuario actual
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Recorrer el diccionario juegosOrdenados y mostrar ambos campos por pantalla
     for (var entry in juegosOrdenados.entries) {
       String nombreJuego = entry.key;
       int ordenJuego = entry.value;
 
-      // Limpiar el nombre del juego eliminando el prefijo "Text(" y los paréntesis
       String nombreJuegoLimpio = nombreJuego;
 
       if (nombreJuego.startsWith('Text(') && nombreJuego.endsWith(')')) {
         nombreJuegoLimpio = nombreJuego.substring(5, nombreJuego.length - 1);
       }
 
-      // Eliminar comillas dobles si las hay
-      nombreJuegoLimpio = nombreJuegoLimpio.replaceAll('"', '');
 
+      nombreJuegoLimpio = nombreJuegoLimpio.replaceAll('"', '');
       print("Nombre del juego limpio: $nombreJuegoLimpio, orden del juego: $ordenJuego");
 
-      // Recorrer la lista de juegosFirebase
+
       for (var juego in juegosFirebase) {
         print("Nombre del juego en Firebase: ${juego.nombre}");
 
-        // Comprobar si el nombre del juego coincide
         if (juego.nombre == nombreJuegoLimpio) {
-          // Si coincide, actualizar el orden del juego en Firebase
           try {
             await db.collection("ColeccionJuegos")
                 .doc(userId)
